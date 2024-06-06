@@ -1,0 +1,224 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+}
+
+.menuContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 18%;
+  min-width: 250px;
+  background-color: $sidebar-bg;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 82%;
+  background-color: $body-bg;
+  padding: 32px;
+}
+
+/******************* Profile Styles start  ***********/
+
+.profileContainer {
+  .formWrapper {
+    background-color: #ffffff;
+    padding: 32px;
+    border-radius: 8px;
+  }
+}
+
+.profilePageContainer {
+  margin: 48px auto;
+  width: 504px;
+  height: 643px;
+  text-align: center;
+
+  .formWrapper {
+    background-color: #f3f3f3;
+    padding: 32px 42px 32px 42px;
+    text-align: left;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+  }
+}
+
+.btnWrap {
+  margin: 24px 0;
+  text-align: center;
+}
+
+// /******************* Profile Styles end    ***********/
+
+// /******************* Payment Styles start  ***********/
+
+.paymentContainer {
+  width: 530px;
+}
+
+.paymentinfo {
+  border-radius: 10px;
+  border: 1px solid $border-color;
+  width: 130px;
+  height: 36px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 36px;
+}
+
+.formBorder {
+  width: 600px;
+  display: inline-flex;
+  padding: 32px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--BorderLine, #ddd);
+}
+
+.cardBox {
+  display: flex;
+  justify-content: space-around;
+  width: 210px;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.autoPayInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 400px;
+}
+.changeCardText {
+  text-decoration: underline;
+  color: blue;
+  font-weight: 600;
+  cursor: pointer;
+}
+// /******************* Payment Styles end    ***********/
+
+.formContainer {
+  .colorPicDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .colorBoxPrimary {
+      width: 24px;
+      height: 24px;
+      background-color: #2fcc7c;
+    }
+
+    .colorBoxSecondary {
+      width: 24px;
+      height: 24px;
+      background-color: #2b445a;
+    }
+
+    label {
+      display: inline;
+      min-width: 150px;
+      margin-right: 15px;
+    }
+  }
+}
+
+// /****************** App page styles ends ****************/
+
+// /****************** Form elements styles starts ****************/
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    padding-bottom: 32px;
+  }
+
+  .formElement {
+    justify-content: center;
+    align-items: center;
+    //padding: 0 16px 16px;
+  }
+}
+
+.fieldInput {
+  color: $place-holder;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 350px;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+
+  @include media(tablet) {
+    min-width: 280px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+.visa {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/visa_icon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.matercard {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/MasterCard.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.discover {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/Discover-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.americanExpress {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/american-express.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+// /****************** Form elements styles ends ****************/

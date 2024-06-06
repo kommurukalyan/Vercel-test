@@ -1,0 +1,89 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+// Header Styles
+.header {
+  background-color: $header-bg;
+  border-bottom-color: red;
+  border-bottom-style: solid;
+
+  .toolHeader {
+    box-shadow: none;
+    height: 70px;
+    min-height: 56px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+
+    @include media(tablet) {
+      padding: 0 20px;
+    }
+
+    @include media(mobile) {
+      padding: 0 10px;
+    }
+  }
+
+  .nav-links {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 28px;
+    color: black;
+    margin: 0px 16px;
+    cursor: pointer;
+    text-decoration: none !important;
+
+    &:hover {
+      color: orangered;
+    }
+
+    &:active {
+      color: $main-nav-link-active;
+    }
+  }
+}
+
+.navMenu {
+  display: flex;
+  flex-direction: row;
+}
+
+.list-inline {
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+
+  a {
+    text-decoration: none;
+    color: black;
+
+    &:hover {
+      .nav-links {
+        color: $main-nav-link-active;
+      }
+    }
+  }
+
+  .nav-links {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 28px;
+    color: black;
+    margin: 0px 16px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      color: $main-nav-link-hover;
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: $main-nav-link-active;
+      border-bottom: 2px solid $main-nav-link-active;
+    }
+  }
+}

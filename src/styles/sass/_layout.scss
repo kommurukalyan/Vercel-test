@@ -1,0 +1,145 @@
+.appContainer {
+  min-height: 100%;
+  width: 100%;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  flex: 1;
+  //padding-bottom: 80px;
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Works for Firefox */
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+.react-transition {
+  animation-fill-mode: both;
+}
+
+@keyframes swipeRight {
+  from {
+    transform: translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.swipe-right {
+  animation-timing-function: ease-in-out;
+  transform-origin: bottom center;
+  animation-name: swipeRight;
+  animation-duration: 300ms;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation-timing-function: ease-in-out;
+  transform-origin: bottom center;
+  animation-name: fadeIn;
+  animation-duration: 250ms;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 48px;
+  margin: 0 0 16px 0;
+  color: $primary-color;
+
+  @include media(mobile) {
+    font-size: 24px;
+    line-height: 36px;
+    text-align: left;
+
+    br {
+      display: none;
+    }
+  }
+}
+
+.visa {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/visa_icon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.matercard {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/MasterCard.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.discover {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/Discover-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.americanExpress {
+  display: inline-flex;
+  width: 40px;
+  height: 16px;
+  background-image: url('/images/american-express.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+.viewDetails {
+  display: flex;
+  flex-direction: column;
+}
+.detailsContainer {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 80px;
+  height: auto;
+  margin: 24px 0 64px;
+}
+.stickyBtnWrap {
+  position: sticky;
+  bottom: 0px;
+  z-index: 5;
+  padding: 6px 16px 12px;
+  margin: 6px -24px;
+  background-color: $white-color;
+  border-top: 1px solid #ccc;
+  display: flex;
+  width: auto;
+}

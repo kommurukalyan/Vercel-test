@@ -1,0 +1,123 @@
+/*------------------------------------*\
+    $VARIABLES
+\*------------------------------------*/
+
+$defaultFont: 'Poppins';
+$font-primary: 'Poppins', sans-serif;
+$font-secondary: 'Poppins', sans-serif;
+$font-awesome: 'FontAwesome';
+
+// FONT WEIGHTS
+// ====================
+$font-normal: 400;
+$font-medium: 500;
+$font-bold: 600;
+$font-heavy: 800;
+
+// FONT SIZES
+// ====================
+$font-size-base: 16px;
+$font-size-slightly-larger: 18px;
+$font-size-slightly-smaller: 14px;
+$font-size-sm: 10px;
+$font-size-large: 20px;
+
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$line-height-base: 1.6;
+
+// Colors
+// ====================
+$primary-color: #005a9e;
+$primaryDark-color: white;
+$secondary-color: #2b445a;
+
+$black: #000000;
+$dark-gray: #333333;
+$gray-color: $dark-gray;
+$light-gray: #dddddd;
+$grey-accent: #bdbdbd;
+$white-color: #ffffff;
+$blue-color: #0000ee;
+$red-color: #d73925;
+
+// Body
+$body-bg: #f3f3f3;
+$body-text-color: #2b445a;
+$body-text-color2: rgba(43, 68, 90, 0.5); //2B445A
+$lighter-txt: #8d8d8d;
+$head-text-color: $black;
+//$head-text-alt-color : $head-alt-color;
+$label-color: $lighter-txt;
+//$hr-color  	: $fog-gray;
+//$property-dash-bg 		: $lighter-bg1;
+
+// Links
+$global-link: $blue-color;
+$global-link-hover: $global-link;
+$global-link-active: $global-link !default;
+$global-link-focus: $global-link !default;
+
+// header navigation
+$header-bg: $primaryDark-color;
+$main-nav-font: $font-primary;
+$main-nav-font-weight: 400;
+$main-nav-link-size: 16px;
+$main-nav-sublink-size: 11px;
+$main-nav-small-size: 10px;
+$main-nav-btn-link-size: 10px;
+$main-logo-tag-size: 14px;
+$main-logo-tag: $white-color;
+$main-logo-fa-icon: $white-color;
+$main-nav-link: $white-color;
+$main-nav-link-hover: #f6f6f6;
+$main-nav-link-active: #c3c3c3;
+// $main-nav-sub-link 	: $midnight-gray;
+// $main-nav-sub-link-hover : $midnight-gray;
+// $main-nav-link-border : transparent;
+// $main-nav-link-border-hover		: transparent;
+
+// footer navigation
+$footer-txt: $white-color;
+$footer-link: $white-color;
+$footer-link-hover: $light-gray;
+$footer-bg: $primaryDark-color;
+$footer-bottom-bg: #1c2124;
+$footer-bottom-border: #303030;
+//$footer-bottom-txt 	: $light-gray;
+
+// sidebar navigation
+$sidebar-bg: #f9f9f9;
+$sidebar-link: rgba(0, 90, 158, 80%) !default;
+$sidebar-link-hover: $primary-color;
+$sidebar-link-active: $primaryDark-color;
+
+// headings
+$h1-color: $primary-color;
+$h2-color: $body-text-color;
+$h3-color: $body-text-color;
+$h4-color: $body-text-color;
+$h5-color: $body-text-color;
+$h6-color: $body-text-color;
+
+$border-color: $light-gray;
+$place-holder: #999999;
+
+// BUTTON STYLES =============
+$btn-default: $primaryDark-color;
+$btn-default-hover: darken($btn-default, 15%) !default;
+$btn-default-focus: $btn-default !default;
+$btn-default-border: $btn-default;
+$btn-default-border-hover: darken($btn-default, 15%) !default;
+$btn-default-txt-color: $white-color;
+
+$btn-primary: $btn-default;
+$btn-primary-hover: darken($btn-primary, 15%) !default;
+$btn-primary-focus: $btn-primary !default;
+
+$btn-secondary: #f9f9f9;
+$btn-secondary-hover: $primary-color;
+$btn-secondary-focus: $primary-color;
+$btn-secondary-border: $btn-secondary;
+$btn-secondary-txt-color: $primary-color;
+$btn-secondary-txt-hover-color: $white-color;

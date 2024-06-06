@@ -1,0 +1,12 @@
+/*
+* Note: 'base, index, layout are global stylesheets.
+  libraries: It is used to do third-party library styling for any particular library and should be avoided, if possible.
+  components: It is used to provide styling not applicable with component-level styling.
+*/
+
+@import './base';
+@import './index';
+@import './layout';
+@import './pages/Header.module';
+@import './pages/SidebarMenu.module';
+@import './pages/footer.module';

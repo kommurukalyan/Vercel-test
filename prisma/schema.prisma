@@ -1,0 +1,225 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model User {
+  id                         Int       @id @default(autoincrement())
+  name                       String?
+  email                      String    @unique
+  password                   String?
+  emailVerified              Boolean   @default(false)
+  emailVerificationOtp       Int?
+  emailVerificationExpiresAt DateTime?
+  forgotPasswordKey          String?   @unique
+  forgotPasswordKeyExpiresAt DateTime?
+  isDeleted                  Boolean   @default(false)
+  isRootUser                 Boolean   @default(false)
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+  Sites                      Site[]
+
+  @@map("user")
+}
+
+model Location {
+  id                Int      @id @default(autoincrement())
+  locationUuid      String?  @unique
+  locationName      String?
+  gotabLocationId   String?
+  webflowLocationId String
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  siteId            Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("location")
+}
+
+model Address {
+  id               Int      @id @default(autoincrement())
+  addressUuid      String?  @unique
+  webflowAddressId String
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  siteId           Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("address")
+}
+
+model Site {
+  id                          Int               @id @default(autoincrement())
+  webflowSiteId               String?           @unique
+  apiKey                      String
+  locationUuid                String            @unique
+  locationName                String
+  webflowLocationCollectionId String?
+  webflowAddressCollectionId  String?
+  webflowMenuCollectionId     String?
+  webflowCategoryCollectionId String?
+  webflowProductCollectionId  String?
+  webflowModifierCollectionId String?
+  webflowVariantCollectionId  String?
+  webflowOptionCollectionId   String?
+  isDeleted                   Boolean           @default(false)
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+  userId                      Int
+  errorMsg                    String?
+  User                        User?             @relation(fields: [userId], references: [id])
+  Location                    Location[]
+  Option                      Option[]
+  Product                     Product[]
+  Category                    Category[]
+  Menu                        Menu[]
+  Modifier                    Modifier[]
+  Variant                     Variant[]
+  Address                     Address[]
+  MenuCategory                MenuCategory[]
+  ProductModifier             ProductModifier[]
+  isWebhookFailed             Boolean           @default(false)
+
+  @@map("site")
+}
+
+model Option {
+  id               String   @id @default(uuid())
+  webflowOptionId  String
+  gotabOptionuid   String?  @unique
+  gotabModifieruid String?
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  siteId           Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("option")
+}
+
+model Variant {
+  id               String   @id @default(uuid())
+  webflowVariantId String
+  gotabVariantsku  String?  @unique
+  gotabProductUuid String?
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  siteId           Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("variant")
+}
+
+model Modifier {
+  id                String   @id @default(uuid())
+  webflowModifierId String
+  gotabModifieruid  String?  @unique
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  siteId            Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("modifier")
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  productUuid      String?  @unique
+  webflowProductId String
+  gotabProductId   String?
+  gotabCategoryId  String?
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  siteId           Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("product")
+}
+
+model Category {
+  id                String   @id @default(uuid())
+  webflowCategoryId String
+  gotabCategoryId   String?  @unique
+  gotabCategoryName String?  @unique
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  siteId            Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("category")
+}
+
+model Menu {
+  id            String   @id @default(uuid())
+  webflowMenuId String
+  gotabMenuId   String?  @unique
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  siteId        Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("menu")
+}
+
+model MenuCategory {
+  id                String   @id @default(uuid())
+  gotabCategoryName String
+  gotabMenuId       String
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  siteId            Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("menucategory")
+}
+
+model ErrorLog {
+  id        String   @id @default(uuid())
+  siteId    Int
+  apiUrl    String?
+  errorType String
+  error     String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@map("errorlog")
+}
+
+model ProductModifier {
+  id               String   @id @default(uuid())
+  gotabModifieruid String
+  gotabProductUuid String
+  isDeleted        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  siteId           Int
+
+  Site Site? @relation(fields: [siteId], references: [id])
+
+  @@map("productmodifier")
+}

@@ -1,0 +1,133 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.title {
+  color: #005290;
+  font-size: 32px;
+}
+
+.detailsContainer {
+  padding: 0px 25px;
+}
+
+.subtitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .greyText {
+    color: #999;
+  }
+}
+
+.locationBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .addressText {
+    font-size: 36px;
+    margin: 5px;
+  }
+}
+
+.boldGreyText {
+  color: #999;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+}
+.boldBlueText {
+  color: #2b445a;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0px;
+}
+.spaceIcons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.spaceDetailsContainer {
+  display: flex;
+  flex-direction: row;
+  width: 70%;
+  justify-content: space-between;
+  margin: auto;
+  margin-top: 25px;
+}
+.spaceDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.commentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+.comment {
+  background-color: #c7e0f4;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.exteriorSpaceMediaContainer {
+  background-color: #f0f0f0;
+  padding-bottom: 20px;
+}
+
+.imagesWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0px 35px;
+  gap: 30px 30px;
+  max-width: 1600px;
+  margin: auto;
+  justify-content: center;
+
+  .imageContainer {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    align-items: center;
+    padding: 10px;
+    width: 350px;
+    height: 400px;
+  }
+}
+.geoDetails {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  align-items: center;
+}
+.emptyImgText {
+  color: #000;
+  text-align: center;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+.placeholderBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.btnStyle {
+  width: 180px;
+  height: 50px;
+  border-radius: 8px !important;
+  background: #ff4343 !important;
+  color: white !important;
+  box-shadow: 0px 12.11672px 24.23343px 0px rgba(1, 11, 253, 0.12) !important;
+}

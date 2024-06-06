@@ -1,0 +1,180 @@
+@mixin media($breakpoint) {
+  @if $breakpoint == mobile {
+    @media only screen and (max-width: 529px) {
+      @content;
+    }
+  }
+  @if $breakpoint == mobile-landscape {
+    @media only screen and (max-width: 529px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == gt-mobile {
+    @media only screen and (min-width: 529px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tablet {
+    @media only screen and (min-width: 530px) and (max-width: 949px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tablet-small {
+    @media only screen and (min-width: 530px) and (max-width: 767px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tablet-large {
+    @media only screen and (min-width: 767px) and (max-width: 949px) {
+      @content;
+    }
+  }
+  @if $breakpoint == tablet-landscape {
+    @media only screen and (min-width: 530px) and (max-width: 949px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == gt-tablet {
+    @media only screen and (min-width: 950px) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop-small {
+    @media only screen and (width: 1024px) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop {
+    @media only screen and (min-width: 950px) and (max-width: 1349px) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop-landscape {
+    @media only screen and (min-width: 950px) and (max-width: 1349px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop-landscape {
+    @media only screen and (min-width: 950px) and (max-width: 1349px) and (orientation: landscape) {
+      @content;
+    }
+  }
+  @if $breakpoint == desktop-xl {
+    @media only screen and (min-width: 1350px) {
+      @content;
+    }
+  }
+  @if $breakpoint == all-desktop {
+    @media only screen and (min-width: 950px) {
+      @content;
+    }
+  }
+}
+
+@mixin page-header() {
+  color: white;
+  text-align: center;
+  font-weight: 500;
+  font-size: 80px;
+  line-height: 96px;
+  @include media(tablet) {
+    font-size: 48px;
+    line-height: 57px;
+  }
+  @include media(mobile) {
+    font-size: 30px;
+    line-height: 36px;
+  }
+}
+
+@mixin page-subheader() {
+  font-weight: 500;
+  color: white;
+  font-size: 36px;
+  line-height: 44px;
+  @include media(tablet) {
+    font-size: 24px;
+    line-height: 29px;
+  }
+  @include media(mobile) {
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
+
+@mixin dashed-border() {
+  background-image: repeating-linear-gradient(
+      to right,
+      $grey-accent 0%,
+      $grey-accent 50%,
+      transparent 50%,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      to right,
+      $grey-accent 0%,
+      $grey-accent 50%,
+      transparent 50%,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      $grey-accent 0%,
+      $grey-accent 50%,
+      transparent 50%,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      $grey-accent 0%,
+      $grey-accent 50%,
+      transparent 50%,
+      transparent 100%
+    );
+  background-position:
+    left top,
+    left bottom,
+    left top,
+    right top;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:
+    20px 3px,
+    20px 3px,
+    3px 20px,
+    3px 20px;
+}
+
+@mixin input-select-style() {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 5px 7px;
+  font-size: inherit;
+  border-radius: 3px;
+  font-weight: normal;
+  outline: none;
+}
+
+// Mixin for animation
+@mixin modalAnimation {
+  animation-name: grow-box;
+  animation-duration: 0.4s;
+  animation-timing-function: ease-in-out;
+
+  @keyframes grow-box {
+    0% {
+      opacity: 0.2;
+    }
+    25% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.6;
+    }
+    75% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.9;
+    }
+  }
+}

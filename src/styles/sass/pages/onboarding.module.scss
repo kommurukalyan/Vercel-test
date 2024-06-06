@@ -1,0 +1,511 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.homeContainer {
+  padding: 0 0 24px 0;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  //height: 100vh;
+}
+.heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.addButton {
+  width: 120px;
+  height: 40px;
+  margin-top: 60px;
+  margin-right: 40px;
+  background-color: orangered;
+  color: white;
+  border: none;
+  font-size: large;
+
+  &:disabled{
+    width: 120px;
+  height: 40px;
+  margin-top: 60px;
+  margin-right: 40px;
+  background-color: grey;
+  color: white;
+  border: none;
+  font-size: large;
+
+  }
+}
+
+
+.onboardingContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 75%;
+  padding: 16px 24px;
+
+  @include media(tablet) {
+    padding: 32px 16px 16px;
+    border: 0px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    padding: 24px 12px;
+  }
+}
+
+.checklistContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 25%;
+  min-width: 300px;
+  padding: 24px 16px;
+  background-color: $sidebar-bg;
+
+  @include media(tablet) {
+  }
+
+  @include media(mobile) {
+    display: none;
+  }
+}
+
+/****************** Welcome page styles ****************/
+.welcomeContainer {
+  //padding-top: 32px;
+
+  .title {
+    font-size: 36px;
+    line-height: 50px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+
+  .subtitle {
+    font-size: 28px;
+    line-height: 42px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+}
+
+.btnWrap {
+  margin: 24px 0;
+}
+
+.appContainer {
+  border-radius: 12px;
+  padding: 32px 48px 32px 48px;
+  //border: 1px solid $border-color;
+  background-color: $white-color;
+  margin-bottom: 20px;
+
+  .title {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+
+  .valuegroup {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #999999;
+    letter-spacing: 1px;
+    margin-right: 5px;
+  }
+
+  .formRow {
+    display: flex;
+    margin: 16px 0;
+  }
+
+  @include media(tablet) {
+    width: 100%;
+    padding: 0px 16px;
+    border: 0px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    padding: 0px;
+    border: 0px;
+  }
+}
+
+.apiContainer {
+  //max-width: 760px;
+  border-radius: 12px;
+  padding: 32px 42px 32px 42px;
+  border: 1px solid $border-color;
+  background-color: $white-color;
+  margin-bottom: 20px;
+
+  .title {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+
+  .valuegroup {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #999999;
+    letter-spacing: 1px;
+    margin-right: 5px;
+  }
+
+  .formRow {
+    display: flex;
+    margin: 16px 0;
+  }
+}
+
+/****************** Payments page styles ****************/
+.paymentContainer {
+  width: 530px;
+  border-radius: 10px;
+  border: 1px solid $border-color;
+  background-color: $white-color;
+  padding: 32px;
+
+  .title {
+    font-size: 36px;
+    line-height: 50px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+
+  @include media(tablet) {
+    width: 100%;
+    padding: 32px 16px;
+    border: 0px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    padding: 24px;
+  }
+}
+
+.paymentfieldInput {
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  //width: 432px !important;
+  height: 50px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+
+  @include media(tablet) {
+    min-width: 280px !important;
+  }
+
+  @include media(mobile) {
+    width: 100% !important;
+  }
+}
+
+.paymentfieldDate {
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  width: 200px !important;
+  height: 50px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+
+  @include media(tablet) {
+    min-width: 280px !important;
+  }
+
+  @include media(mobile) {
+    width: 100% !important;
+  }
+}
+
+.pmtOptions {
+  small {
+    color: $body-text-color2;
+    line-height: 1;
+  }
+}
+
+/****************** Api settings page styles ****************/
+.titleWrap {
+  margin-bottom: 20px;
+
+  .title {
+    font-size: 36px;
+    line-height: 50px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+}
+
+.submitContainer {
+  border-radius: 10px;
+  //border: 1px solid #dddddd;
+  padding: 32px;
+  margin-bottom: 20px;
+
+  .title {
+    font-size: 36px;
+    line-height: 50px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+}
+
+.apiContainer {
+  //max-width: 860px;
+  border-radius: 12px;
+  padding: 32px 32px;
+  border: 1px solid $border-color;
+  background-color: $white-color;
+  margin-bottom: 20px;
+
+  .title {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #2b445a;
+  }
+
+  .valuegroup {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #999999;
+    letter-spacing: 1px;
+    margin-right: 5px;
+    display: inline-flex;
+    overflow: hidden;
+
+    @include media(tablet) {
+      width: 400px;
+    }
+
+    @include media(mobile) {
+      width: 280px;
+    }
+  }
+
+  .formRow {
+    display: flex;
+    margin: 24px 0 32px 0;
+
+    @include media(mobile) {
+      flex-direction: column;
+    }
+  }
+
+  @include media(tablet) {
+    width: 100%;
+    padding: 0px 10px 0px 0px;
+    border: 0px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    padding: 0px 10px 0px 0px;
+    border: 0px;
+  }
+}
+
+/****************** App page styles ****************/
+.appImageContainer {
+  //width: 400px;
+  border-radius: 10px;
+  border: 1px solid $border-color;
+  padding: 16px;
+
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 36px;
+    color: #2b445a;
+    margin: 0 0 16px 0;
+
+    @include media(tablet) {
+      font-size: 18px;
+    }
+
+    @include media(mobile) {
+      font-size: 18px;
+    }
+  }
+
+  .imgdiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    img {
+      margin: auto;
+    }
+  }
+
+  .notes {
+    display: inline-flex;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+}
+
+.formContainer {
+  .colorPicDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    @include media(tablet) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    @include media(mobile) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .colorBoxWrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+    }
+
+    .colorBoxPrimary {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+    }
+
+    .colorBoxSecondary {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+    }
+
+    label {
+      display: inline;
+      min-width: 150px;
+      margin-right: 15px;
+    }
+  }
+}
+
+/****************** Form elements styles ****************/
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    padding-bottom: 32px;
+  }
+
+  .formElement {
+    justify-content: center;
+    align-items: center;
+    padding: 0 16px 16px;
+  }
+}
+
+/****************** check list styles ****************/
+
+.checklistTitle {
+  color: $body-text-color;
+  line-height: 36px;
+  font-size: 24px;
+  font-weight: 400;
+  margin: 16px 10px 10px 16px;
+}
+
+.checklistItems {
+  color: $body-text-color;
+  line-height: 30px;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 16px 0px 0px 16px;
+
+  &.active,
+  &.complete {
+    color: $body-text-color2;
+    opacity: 50%;
+    text-decoration: line-through;
+  }
+}
+
+/****************** check list styles ends ****************/
+
+/// interior/ exterior page styles starts
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @include media(mobile) {
+    margin-top: 24px;
+    flex-direction: column;
+  }
+}
+
+.tableContainer {
+  margin-top: 25px;
+  overflow: auto;
+}
+
+.btnContainer {
+  margin: 48px 0;
+}
+
+.viewordersContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px 48px;
+
+  .tabMenuContainer {
+    display: flex;
+    margin: 32px 24px 8px 24px;
+  }
+}
+
+.filterHeader {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  @include media(mobile) {
+    flex-direction: column;
+  }
+  .filterFormGrid {
+    flex-direction: row;
+    justify-content: flex-end;
+    @include media(tablet) {
+      flex-direction: column;
+    }
+    @include media(mobile) {
+      flex-direction: column;
+    }
+  }
+}

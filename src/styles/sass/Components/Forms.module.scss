@@ -1,0 +1,425 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.registerContainer {
+  padding: 20px;
+  max-width: 740px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+
+  @include media(mobile) {
+    padding: 0;
+  }
+
+  .title {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 48px;
+    text-align: center;
+    margin: 0px 0px 20px;
+    color: #1d1d1f;
+
+    @include media(mobile) {
+      font-size: 24px;
+      line-height: 36px;
+      text-align: left;
+
+      br {
+        display: none;
+      }
+    }
+  }
+
+  .titleDesc {
+    text-align: center;
+
+    @include media(mobile) {
+      text-align: left;
+    }
+  }
+
+  .formStyle {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+
+  .formStyles {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @include media(mobile) {
+      align-items: stretch;
+    }
+  }
+
+  .fieldInput {
+    color: $place-holder;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-width: 350px;
+    height: 48px;
+    border-radius: 6px;
+    font-size: 10px !important;
+    text-align: left;
+
+    @include media(tablet) {
+      min-width: 280px;
+    }
+
+    @include media(mobile) {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  .labelStyle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #1a1919 !important;
+    transform: translate(0, 1.5px) scale(1);
+  }
+
+  .formContainer {
+    max-width: 689px;
+    border-radius: 12px;
+    border: 1px solid #d1caca;
+    padding: 25px 25px 25px 25px;
+
+    @include media(tablet) {
+      border: 0;
+    }
+
+    @include media(mobile) {
+      border: 0;
+      padding: 0;
+      width: 100%;
+    }
+  }
+
+  .formElements {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px 0px;
+    flex-wrap: wrap;
+
+    @include media(mobile) {
+      width: 100%;
+    }
+  }
+
+  .loginFormElements {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0px 10px 0px;
+
+    @include media(mobile) {
+      align-items: flex-start;
+    }
+  }
+
+  .termsContainer {
+    margin-top: 20px;
+
+    .terms {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+
+  .submitBtnContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .forgotPasswordDiv {
+    margin: 10px 0px;
+    display: flex;
+    justify-content: center;
+
+    p {
+      cursor: pointer;
+      color: $global-link;
+    }
+  }
+
+  .inputError {
+    border-color: #c2434b !important;
+    margin-right: 0;
+  }
+
+  .inputDefault {
+    border-color: #dedede !important;
+  }
+
+  .VerifyAccountContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    max-width: 740px;
+    margin: auto;
+
+    @include media(tablet) {
+      width: 640px;
+    }
+
+    @include media(mobile) {
+      width: 100%;
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 48px;
+      text-align: center;
+      margin: 0px 0px 64px;
+      color: #2c2d30;
+
+      @include media(mobile) {
+        font-size: 20px;
+        line-height: 28px;
+        text-align: left;
+        margin: 0px 0px 10px;
+
+        br {
+          display: none;
+        }
+      }
+    }
+
+    .titleDesc {
+      font-size: 20px;
+      line-height: 28px;
+      margin: 10px 0px 32px;
+      text-align: center;
+
+      @include media(mobile) {
+        text-align: left;
+
+        br {
+          display: none;
+        }
+      }
+    }
+
+    .formContainer {
+      border: 1px solid #bdbdbd;
+      padding: 24px 24px;
+      display: flex;
+      justify-content: center;
+      margin: auto;
+
+      @include media(mobile) {
+        padding: 16px 0px;
+        border: 0;
+      }
+    }
+
+    .labelText {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      line-height: 30px;
+      text-align: center;
+      margin: 0 0 32px 0;
+
+      @include media(mobile) {
+        text-align: left;
+
+        br {
+          display: none;
+        }
+      }
+    }
+
+    .actionWrapper {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+      align-content: center;
+
+      a {
+        margin: 16px 0;
+      }
+
+      &.block {
+        display: block;
+      }
+    }
+
+    .styledButton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+
+      svg {
+        margin: 0 5px;
+      }
+    }
+  }
+
+  .badgeContainer {
+    display: flex;
+    align-content: center;
+    width: 689px;
+    font-size: 14px;
+    margin: 20px auto 0;
+    padding: 12px 16px;
+    border-radius: 6px;
+
+    svg {
+      margin-right: 5px;
+    }
+
+    &.success {
+      background: #147633;
+      color: #ffffff;
+    }
+
+    @include media(mobile) {
+      padding: 16px 16px;
+      width: 100%;
+    }
+  }
+
+  .emailField {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+
+    @include media(mobile) {
+      justify-content: flex-start;
+    }
+  }
+
+  h5.label {
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .subTitle {
+    line-height: 1.4;
+    text-align: center;
+    margin-bottom: 24px;
+
+    @include media(mobile) {
+      font-size: 16px;
+      text-align: left;
+
+      br {
+        display: none;
+      }
+    }
+  }
+
+  .subTitleText {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    text-align: center;
+    margin-bottom: 24px;
+
+    @include media(mobile) {
+      font-size: 16px;
+      text-align: left;
+
+      br {
+        display: none;
+      }
+    }
+  }
+
+  .passwordContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 10px;
+
+    @include media(mobile) {
+      padding: 0px;
+    }
+  }
+
+  .detailContainer {
+    padding: 20px;
+
+    .subDetails {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0px 24px 0 48px;
+
+      @include media(mobile) {
+        padding: 0px;
+      }
+
+      label {
+        font-weight: 600;
+      }
+
+      .info {
+        .left {
+          flex-direction: column;
+        }
+      }
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      h5 {
+        margin-top: 0;
+      }
+
+      .left {
+        display: flex;
+        flex: 0.4;
+      }
+
+      .right {
+        align-items: center;
+        display: flex;
+        flex: 0.6;
+        justify-content: flex-end;
+        text-align: right;
+        white-space: pre-wrap;
+      }
+    }
+
+    .resetPass {
+      width: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .codeExpires {
+    color: $grey-accent;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .errorText {
+    margin: 0;
+    color: red;
+    font-size: 14px;
+    margin-top: -4px;
+  }
+}

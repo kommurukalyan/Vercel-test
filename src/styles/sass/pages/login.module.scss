@@ -1,0 +1,109 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.homeContainer {
+  padding: 0 0 24px 0;
+}
+
+.main {
+  //min-height: 10vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 48px auto 0;
+  .title {
+    color: orangered;
+  }
+}
+
+.titleWrap {
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 16px 0;
+  width: 65%;
+  color: black;
+
+  @include media(tablet) {
+    width: 100%;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+  }
+  h2 {
+    color: black;
+  }
+}
+
+.loginContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background-color: $body-bg;
+  border-radius: 10px;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 32px 0;
+
+  &:last-child {
+    padding-bottom: 32px;
+  }
+
+  .formElement {
+    justify-content: center;
+    align-items: center;
+    padding: 0 16px 16px;
+    width: 100%;
+  }
+}
+
+.fieldInput {
+  color: $place-holder;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 350px;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+
+  @include media(tablet) {
+    min-width: 280px;
+  }
+
+  @include media(mobile) {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+.submitBtnContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.textWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: black;
+}
+
+.errorText {
+  margin: 0;
+  color: red;
+  font-size: 14px;
+  margin-top: -4px;
+}

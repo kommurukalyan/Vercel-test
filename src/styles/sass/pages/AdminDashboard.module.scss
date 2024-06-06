@@ -1,0 +1,215 @@
+@import '../abstracts/mixins';
+@import '../abstracts/variables';
+
+.tableContainer {
+  margin-top: 25px;
+}
+
+.dialogTitle {
+  font-size: 20px !important;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dialogContentText {
+  font-size: 20px;
+  text-align: center;
+  color: #2c2d30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.amcDialogContentText {
+  font-size: 20px;
+  color: #2c2d30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.iconContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+.submitBtnContainer {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.formElements {
+  display: flex;
+  flex-direction: column;
+
+  .formElement {
+    margin: 10px 0px;
+    width: 100%;
+  }
+}
+
+.amcFormElements {
+  display: flex;
+  flex-direction: column;
+
+  // .formElement {
+  //   margin: 10px 0px;
+  // }
+}
+
+.checklistTitle {
+  color: #2b445a;
+  line-height: 36px;
+  font-size: 24px;
+  font-weight: 400;
+  margin: 30px 10px 10px 30px;
+}
+
+.checkbox-input {
+  width: 20px;
+}
+
+.checklistItems {
+  color: #2b445a;
+  line-height: 30px;
+  font-size: 16px;
+  font-weight: 400;
+  display: flex;
+
+  &.active,
+  &.complete {
+    color: #2b445a;
+    opacity: 50%;
+    text-decoration: line-through;
+  }
+}
+
+.checklistSubText {
+  display: block;
+  color: #999;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    color: $primary-color;
+  }
+
+  @include media(mobile) {
+    margin-top: 24px;
+  }
+}
+
+.ordersTitleWrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .titleBox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 240px;
+    background-color: #f3f3f3;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0px 0 0px 16px;
+    color: $secondary-color;
+    @include media(mobile) {
+      margin: 6px;
+    }
+  }
+
+  .valueBox {
+    background-color: $secondary-color;
+    border: 1px solid $secondary-color;
+    border-radius: 0px 8px 8px 0px;
+    padding: 8px 16px;
+    color: #f3f3f3;
+    margin-left: 10px;
+  }
+
+  @include media(mobile) {
+    flex-direction: column;
+    margin-top: 24px;
+  }
+}
+
+.viewDetailsContainer {
+  h2 {
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  .titleStyle {
+    font-size: 16px;
+    line-height: 21px;
+    font-weight: 400;
+    color: #999999;
+
+    img {
+      margin: 16px 0;
+    }
+  }
+
+  .valueStyle {
+    font-size: 16px;
+    line-height: 21px;
+    font-weight: 400;
+    color: #2b445a;
+    margin: 8px 0;
+
+    img {
+      margin: 16px 0;
+    }
+  }
+
+  .amcDetailsContainer,
+  .apiDetailsContainer,
+  .appDetailsContainer {
+    //width: 645px;
+    height: auto;
+    border: 1px solid #dddddd;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+
+    @include media(tablet) {
+      width: 100%;
+    }
+
+    @include media(mobile) {
+      width: 100%;
+    }
+
+    .valueStyle {
+      margin: 2px 0 12px;
+    }
+  }
+
+  .apiDetailsContainer {
+    .valueStyle {
+      overflow: hidden;
+    }
+  }
+
+  .imageWrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}
