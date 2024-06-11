@@ -87,7 +87,7 @@ export default class ProductService {
             where: { gotabVariantsku: ele, siteId: siteId },
           });
           if (middlewareVariant) {
-            await prisma.variant.update({
+            prisma.variant.update({
               where: { gotabVariantsku: ele, siteId: siteId },
               data: { gotabProductUuid: payload.productUuid },
             });

@@ -56,7 +56,7 @@ export default class ModifierService {
             where: { gotabOptionuid: ele, siteId: siteId },
           });
           if (middlewareOption) {
-            await prisma.option.update({
+            prisma.option.update({
               where: { gotabOptionuid: ele, siteId: siteId },
               data: { gotabModifieruid: payload.uid },
             });
