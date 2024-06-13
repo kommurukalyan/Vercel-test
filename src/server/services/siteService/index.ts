@@ -57,7 +57,8 @@ export default class SiteService {
     apiKey: any,
     siteId: any,
   ) => {
-    modifiers.forEach(async (ele: any, index: any, array: any) => {
+    console.log('entered modifiers');
+    await modifiers.forEach(async (ele: any, index: any, array: any) => {
       const addModifiersToWebflow = await ModifierService.create(
         apiKey as string,
         modifierCollectionId,
@@ -225,6 +226,7 @@ export default class SiteService {
                     !filteredModifiersArray.error &&
                     !filteredOptionsArray.error
                   ) {
+                    console.log('options', filteredOptionsArray.data.length);
                     filteredOptionsArray.data.forEach(
                       async (ele: any, index: any, array: any) => {
                         const addOptionsToWebflow = await OptionService.create(
@@ -234,6 +236,10 @@ export default class SiteService {
                           siteResult.id,
                         );
                         if (index === array.length - 1) {
+                          console.log(
+                            'modifiers',
+                            filteredModifiersArray.data.length,
+                          );
                           this.addModifiers(
                             filteredModifiersArray.data,
                             modifierCollectionId,
