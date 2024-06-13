@@ -58,14 +58,51 @@ export default class SiteService {
     siteId: any,
   ) => {
     console.log('entered modifiers');
-    await modifiers.forEach(async (ele: any, index: any, array: any) => {
-      const addModifiersToWebflow = await ModifierService.create(
-        apiKey as string,
-        modifierCollectionId,
-        ele,
-        siteId,
-      );
-    });
+    const modifiersData = await modifiers.every(
+      async (ele: any, index: any, array: any) => {
+        const addModifiersToWebflow = await ModifierService.create(
+          apiKey as string,
+          modifierCollectionId,
+          ele,
+          siteId,
+        );
+        if (index === array.length - 1) {
+          return false;
+        }
+      },
+    );
+    if (modifiersData) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  public static addProducts = async (
+    products: any,
+    productCollectionId: any,
+    apiKey: any,
+    siteId: any,
+  ) => {
+    console.log('entered products');
+    const productsData = await products.every(
+      async (ele: any, index: any, array: any) => {
+        const addProductsToWebflow = await ProductService.create(
+          apiKey as string,
+          productCollectionId,
+          ele,
+          siteId,
+        );
+        if (index === array.length - 1) {
+          return false;
+        }
+      },
+    );
+    if (productsData) {
+      return true;
+    } else {
+      return false;
+    }
   };
   public static createSite = async (
     payload: AddSiteRequest,
@@ -227,7 +264,7 @@ export default class SiteService {
                     !filteredOptionsArray.error
                   ) {
                     console.log('options', filteredOptionsArray.data.length);
-                    filteredOptionsArray.data.forEach(
+                    const optionsData = filteredOptionsArray.data.every(
                       async (ele: any, index: any, array: any) => {
                         const addOptionsToWebflow = await OptionService.create(
                           payload.apiKey as string,
@@ -236,19 +273,40 @@ export default class SiteService {
                           siteResult.id,
                         );
                         if (index === array.length - 1) {
-                          console.log(
-                            'modifiers',
-                            filteredModifiersArray.data.length,
-                          );
-                          this.addModifiers(
-                            filteredModifiersArray.data,
-                            modifierCollectionId,
-                            payload.apiKey,
-                            siteResult.id,
-                          );
+                          return false;
                         }
                       },
                     );
+                    if (optionsData) {
+                      console.log(
+                        'modifiers',
+                        filteredModifiersArray.data.length,
+                      );
+                      const modifiersData = await this.addModifiers(
+                        filteredModifiersArray.data,
+                        modifierCollectionId,
+                        payload.apiKey,
+                        siteResult.id,
+                      );
+                      if (modifiersData) {
+                        console.log(
+                          'products',
+                          filteredProductsArray.data.length,
+                        );
+                        const productsData = await this.addProducts(
+                          filteredProductsArray.data,
+                          productCollectionId,
+                          payload.apiKey,
+                          siteResult.id,
+                        );
+                        if (productsData) {
+                          console.log('import success');
+                          return getSuccessResponse(
+                            'site created successfully',
+                          );
+                        }
+                      }
+                    }
                     //
                     //   let promise1 = new Promise((resolve: any, reject: any) => {
                     //     if (filteredOptionsArray.data.length == 0) {
@@ -626,10 +684,6 @@ export default class SiteService {
                 return getErrorResponse(errMsg, addAddressToWebflow);
               }
             }
-            return getSuccessResponse(
-              'Site Added,Importing Process Started,we will inform through email once the process is completed',
-              siteResult,
-            );
           }
         }
       } else {
