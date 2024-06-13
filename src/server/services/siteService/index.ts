@@ -58,7 +58,7 @@ export default class SiteService {
     siteId: any,
   ) => {
     modifiers.forEach(async (ele: any, index: any, array: any) => {
-      const addOptionsToWebflow = await ModifierService.create(
+      const addModifiersToWebflow = await ModifierService.create(
         apiKey as string,
         modifierCollectionId,
         ele,
@@ -236,8 +236,8 @@ export default class SiteService {
                         if (index === array.length - 1) {
                           this.addModifiers(
                             filteredModifiersArray.data,
-                            payload.apiKey,
                             modifierCollectionId,
+                            payload.apiKey,
                             siteResult.id,
                           );
                         }
