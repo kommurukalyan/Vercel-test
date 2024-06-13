@@ -51,6 +51,21 @@ export default class SiteService {
       return getErrorResponse();
     }
   };
+  public static addModifiers = async (
+    modifiers: any,
+    modifierCollectionId: any,
+    apiKey: any,
+    siteId: any,
+  ) => {
+    modifiers.forEach(async (ele: any, index: any, array: any) => {
+      const addOptionsToWebflow = await ModifierService.create(
+        apiKey as string,
+        modifierCollectionId,
+        ele,
+        siteId,
+      );
+    });
+  };
   public static createSite = async (
     payload: AddSiteRequest,
     userId: number,
@@ -210,345 +225,364 @@ export default class SiteService {
                     !filteredModifiersArray.error &&
                     !filteredOptionsArray.error
                   ) {
-                    let promise1 = new Promise((resolve: any, reject: any) => {
-                      if (filteredOptionsArray.data.length == 0) {
-                        resolve();
-                      }
-                      console.log('options', filteredOptionsArray.data.length);
-                      filteredOptionsArray.data.every(
-                        async (ele: any, index: any, array: any) => {
-                          setInterval(async () => {
-                            await prisma.user.findMany();
-                          }, 1000);
-                          setTimeout(async () => {
-                            (async () => await prisma.user.findMany())();
-                            const addOptionsToWebflow =
-                              await OptionService.create(
-                                payload.apiKey as string,
-                                optionCollectionId,
-                                ele,
-                                siteResult.id,
-                              );
-                            if (!addOptionsToWebflow.error) {
-                              if (index === array.length - 1) {
-                                resolve();
-                              }
-                            } else {
-                              reject(addOptionsToWebflow);
-                              return false;
-                            }
-                          }, index * 1000);
-                        },
-                      );
-                    });
-                    promise1
-                      .then(async () => {
-                        let promise2 = new Promise(
-                          (resolve: any, reject: any) => {
-                            if (filteredModifiersArray.data.length == 0) {
-                              resolve();
-                            }
-                            console.log(
-                              'modifiers',
-                              filteredModifiersArray.data.length,
-                            );
-                            filteredModifiersArray.data.forEach(
-                              async (ele: any, index: any, array: any) => {
-                                setInterval(async () => {
-                                  await prisma.user.findMany();
-                                }, 1000);
-                                setTimeout(async () => {
-                                  const addModifiersToWebflow =
-                                    await ModifierService.create(
-                                      payload.apiKey as string,
-                                      modifierCollectionId,
-                                      ele,
-                                      siteResult.id,
-                                    );
-                                  if (!addModifiersToWebflow.error) {
-                                    if (index === array.length - 1) {
-                                      resolve();
-                                    }
-                                  } else {
-                                    reject(addModifiersToWebflow);
-                                    return false;
-                                  }
-                                }, index * 1000);
-                              },
-                            );
-                          },
-                        );
-                        promise2
-                          .then(async () => {
-                            let promise3 = new Promise(
-                              (resolve: any, reject: any) => {
-                                if (filteredVariantsArray.data.length == 0) {
-                                  resolve();
-                                }
-                                console.log(
-                                  'variants',
-                                  filteredVariantsArray.data.length,
-                                );
-                                filteredVariantsArray.data.forEach(
-                                  async (ele: any, index: any, array: any) => {
-                                    setInterval(async () => {
-                                      await prisma.user.findMany();
-                                    }, 1000);
-                                    setTimeout(async () => {
-                                      const addVariantsToWebflow =
-                                        await varientService.create(
-                                          payload.apiKey as string,
-                                          variantCollectionId,
-                                          ele,
-                                          siteResult.id,
-                                        );
-                                      if (!addVariantsToWebflow.error) {
-                                        if (index === array.length - 1) {
-                                          resolve();
-                                        }
-                                      } else {
-                                        reject(addVariantsToWebflow);
-                                        return false;
-                                      }
-                                    }, index * 1000);
-                                  },
-                                );
-                              },
-                            );
-                            promise3
-                              .then(async () => {
-                                let promise4 = new Promise(
-                                  (resolve: any, reject: any) => {
-                                    if (
-                                      filteredProductsArray.data.length == 0
-                                    ) {
-                                      resolve();
-                                    }
-                                    console.log(
-                                      'products',
-                                      filteredProductsArray.data.length,
-                                    );
-                                    filteredProductsArray.data.forEach(
-                                      async (
-                                        ele: any,
-                                        index: any,
-                                        array: any,
-                                      ) => {
-                                        setInterval(async () => {
-                                          await prisma.user.findMany();
-                                        }, 1000);
-                                        setTimeout(async () => {
-                                          const addProductsToWebflow =
-                                            await ProductService.create(
-                                              payload.apiKey as string,
-                                              productCollectionId,
-                                              ele,
-                                              siteResult.id,
-                                            );
-                                          if (!addProductsToWebflow.error) {
-                                            if (index === array.length - 1) {
-                                              resolve();
-                                            }
-                                          } else {
-                                            reject(addProductsToWebflow);
-                                            return false;
-                                          }
-                                        }, index * 1000);
-                                      },
-                                    );
-                                  },
-                                );
-                                promise4
-                                  .then(() => {
-                                    let promise5 = new Promise(
-                                      (resolve: any, reject: any) => {
-                                        if (
-                                          filteredCategoriesArray.data.length ==
-                                          0
-                                        ) {
-                                          resolve();
-                                        }
-                                        console.log(
-                                          'categories',
-                                          filteredCategoriesArray.data.length,
-                                        );
-                                        filteredCategoriesArray.data.forEach(
-                                          async (
-                                            ele: any,
-                                            index: any,
-                                            array: any,
-                                          ) => {
-                                            setTimeout(async () => {
-                                              const addCategoriesToWebflow =
-                                                await CategoryService.create(
-                                                  payload.apiKey as string,
-                                                  categoryCollectionId,
-                                                  ele,
-                                                  siteResult.id,
-                                                );
-                                              if (
-                                                !addCategoriesToWebflow?.error
-                                              ) {
-                                                if (
-                                                  index ===
-                                                  array.length - 1
-                                                ) {
-                                                  resolve();
-                                                }
-                                              } else {
-                                                reject(addCategoriesToWebflow);
-                                                return false;
-                                              }
-                                            }, index * 1000);
-                                          },
-                                        );
-                                      },
-                                    );
-                                    promise5
-                                      .then(() => {
-                                        let promise6 = new Promise(
-                                          (resolve: any, reject: any) => {
-                                            if (
-                                              filteredMenusArray.data.length ==
-                                              0
-                                            ) {
-                                              resolve();
-                                            }
-                                            console.log(
-                                              'menus',
-                                              filteredMenusArray.data.length,
-                                            );
-                                            filteredMenusArray.data.forEach(
-                                              async (
-                                                ele: any,
-                                                index: any,
-                                                array: any,
-                                              ) => {
-                                                setTimeout(async () => {
-                                                  const addMenusToWebflow =
-                                                    await MenuService.create(
-                                                      payload.apiKey as string,
-                                                      menuCollectionId,
-                                                      ele,
-                                                      siteResult.id,
-                                                    );
-                                                  if (
-                                                    !addMenusToWebflow?.error
-                                                  ) {
-                                                    if (
-                                                      index ===
-                                                      array.length - 1
-                                                    ) {
-                                                      resolve();
-                                                    }
-                                                  } else {
-                                                    reject(addMenusToWebflow);
-                                                    return false;
-                                                  }
-                                                }, index * 1000);
-                                              },
-                                            );
-                                          },
-                                        );
-                                        promise6
-                                          .then((data) => {
-                                            return data;
-                                          })
-                                          .catch(async (error) => {
-                                            console.log('menus-catch', error);
-                                            const errorMsg = `${error?.errors?.response.data.message} while adding Menu`;
-                                            await ErrorLog.logErrorToDb(
-                                              error?.errors?.response.data.code,
-                                              errorMsg,
-                                              siteResult.id,
-                                              payload,
-                                              error?.errors?.response.config,
-                                            );
-                                            return getErrorResponse(
-                                              errorMsg,
-                                              error?.errors?.response,
-                                            );
-                                          });
-                                      })
-                                      .catch(async (error) => {
-                                        console.log('category-catch', error);
-                                        const errorMsg = `${error?.errors?.response.data.message} while adding categories`;
-                                        await ErrorLog.logErrorToDb(
-                                          error?.errors?.response.data.code,
-                                          errorMsg,
-                                          siteResult.id,
-                                          payload,
-                                          error?.errors?.response.config,
-                                        );
-                                        return getErrorResponse(
-                                          errorMsg,
-                                          error?.errors?.response,
-                                        );
-                                      });
-                                  })
-                                  .catch(async (error) => {
-                                    console.log('products-catch', error);
-                                    const errorMsg = `${error?.errors?.response.data.message} while adding products`;
-                                    await ErrorLog.logErrorToDb(
-                                      error?.errors?.response.data.code,
-                                      errorMsg,
-                                      siteResult.id,
-                                      payload,
-                                      error?.errors?.response.config,
-                                    );
-                                    return getErrorResponse(
-                                      errorMsg,
-                                      error?.errors?.response,
-                                    );
-                                  });
-                              })
-                              .catch(async (error) => {
-                                console.log('variants-catch', error);
-                                const errorMsg = `${error?.errors?.response.data.message} while adding variants`;
-                                await ErrorLog.logErrorToDb(
-                                  error?.errors?.response.data.code,
-                                  errorMsg,
-                                  siteResult.id,
-                                  payload,
-                                  error?.errors?.response.config,
-                                );
-                                return getErrorResponse(
-                                  errorMsg,
-                                  error?.errors?.response,
-                                );
-                              });
-                          })
-                          .catch(async (error) => {
-                            console.log('modifiers-catch', error);
-                            const errorMsg = `${error?.errors?.response.data.message} while adding modifiers`;
-                            await ErrorLog.logErrorToDb(
-                              error?.errors?.response.data.code,
-                              errorMsg,
-                              siteResult.id,
-                              payload,
-                              error?.errors?.response.config,
-                            );
-                            return getErrorResponse(
-                              errorMsg,
-                              error?.errors?.response,
-                            );
-                          });
-                      })
-                      .catch(async (error) => {
-                        console.log('options-catch', error);
-                        const errorMsg = ` while adding options, ${error?.errors?.response.data.message}`;
-                        await ErrorLog.logErrorToDb(
-                          error?.errors?.response.data.code,
-                          errorMsg,
+                    filteredOptionsArray.data.forEach(
+                      async (ele: any, index: any, array: any) => {
+                        const addOptionsToWebflow = await OptionService.create(
+                          payload.apiKey as string,
+                          optionCollectionId,
+                          ele,
                           siteResult.id,
-                          payload,
-                          error?.errors?.config,
                         );
-                        return getErrorResponse(
-                          errorMsg,
-                          error?.errors?.response,
-                        );
-                      });
+                        if (index === array.length - 1) {
+                          this.addModifiers(
+                            filteredModifiersArray.data,
+                            payload.apiKey,
+                            modifierCollectionId,
+                            siteResult.id,
+                          );
+                        }
+                      },
+                    );
+                    //
+                    //   let promise1 = new Promise((resolve: any, reject: any) => {
+                    //     if (filteredOptionsArray.data.length == 0) {
+                    //       resolve();
+                    //     }
+                    //     console.log('options', filteredOptionsArray.data.length);
+                    //     filteredOptionsArray.data.every(
+                    //       async (ele: any, index: any, array: any) => {
+                    //         setInterval(async () => {
+                    //           await prisma.user.findMany();
+                    //         }, 1000);
+                    //         setTimeout(async () => {
+                    //           (async () => await prisma.user.findMany())();
+                    //           const addOptionsToWebflow =
+                    //             await OptionService.create(
+                    //               payload.apiKey as string,
+                    //               optionCollectionId,
+                    //               ele,
+                    //               siteResult.id,
+                    //             );
+                    //           if (!addOptionsToWebflow.error) {
+                    //             if (index === array.length - 1) {
+                    //               resolve();
+                    //             }
+                    //           } else {
+                    //             reject(addOptionsToWebflow);
+                    //             return false;
+                    //           }
+                    //         }, index * 1000);
+                    //       },
+                    //     );
+                    //   });
+                    //   promise1
+                    //     .then(async () => {
+                    //       let promise2 = new Promise(
+                    //         (resolve: any, reject: any) => {
+                    //           if (filteredModifiersArray.data.length == 0) {
+                    //             resolve();
+                    //           }
+                    //           console.log(
+                    //             'modifiers',
+                    //             filteredModifiersArray.data.length,
+                    //           );
+                    //           filteredModifiersArray.data.forEach(
+                    //             async (ele: any, index: any, array: any) => {
+                    //               setInterval(async () => {
+                    //                 await prisma.user.findMany();
+                    //               }, 1000);
+                    //               setTimeout(async () => {
+                    //                 const addModifiersToWebflow =
+                    //                   await ModifierService.create(
+                    //                     payload.apiKey as string,
+                    //                     modifierCollectionId,
+                    //                     ele,
+                    //                     siteResult.id,
+                    //                   );
+                    //                 if (!addModifiersToWebflow.error) {
+                    //                   if (index === array.length - 1) {
+                    //                     resolve();
+                    //                   }
+                    //                 } else {
+                    //                   reject(addModifiersToWebflow);
+                    //                   return false;
+                    //                 }
+                    //               }, index * 1000);
+                    //             },
+                    //           );
+                    //         },
+                    //       );
+                    //       promise2
+                    //         .then(async () => {
+                    //           let promise3 = new Promise(
+                    //             (resolve: any, reject: any) => {
+                    //               if (filteredVariantsArray.data.length == 0) {
+                    //                 resolve();
+                    //               }
+                    //               console.log(
+                    //                 'variants',
+                    //                 filteredVariantsArray.data.length,
+                    //               );
+                    //               filteredVariantsArray.data.forEach(
+                    //                 async (ele: any, index: any, array: any) => {
+                    //                   setInterval(async () => {
+                    //                     await prisma.user.findMany();
+                    //                   }, 1000);
+                    //                   setTimeout(async () => {
+                    //                     const addVariantsToWebflow =
+                    //                       await varientService.create(
+                    //                         payload.apiKey as string,
+                    //                         variantCollectionId,
+                    //                         ele,
+                    //                         siteResult.id,
+                    //                       );
+                    //                     if (!addVariantsToWebflow.error) {
+                    //                       if (index === array.length - 1) {
+                    //                         resolve();
+                    //                       }
+                    //                     } else {
+                    //                       reject(addVariantsToWebflow);
+                    //                       return false;
+                    //                     }
+                    //                   }, index * 1000);
+                    //                 },
+                    //               );
+                    //             },
+                    //           );
+                    //           promise3
+                    //             .then(async () => {
+                    //               let promise4 = new Promise(
+                    //                 (resolve: any, reject: any) => {
+                    //                   if (
+                    //                     filteredProductsArray.data.length == 0
+                    //                   ) {
+                    //                     resolve();
+                    //                   }
+                    //                   console.log(
+                    //                     'products',
+                    //                     filteredProductsArray.data.length,
+                    //                   );
+                    //                   filteredProductsArray.data.forEach(
+                    //                     async (
+                    //                       ele: any,
+                    //                       index: any,
+                    //                       array: any,
+                    //                     ) => {
+                    //                       setInterval(async () => {
+                    //                         await prisma.user.findMany();
+                    //                       }, 1000);
+                    //                       setTimeout(async () => {
+                    //                         const addProductsToWebflow =
+                    //                           await ProductService.create(
+                    //                             payload.apiKey as string,
+                    //                             productCollectionId,
+                    //                             ele,
+                    //                             siteResult.id,
+                    //                           );
+                    //                         if (!addProductsToWebflow.error) {
+                    //                           if (index === array.length - 1) {
+                    //                             resolve();
+                    //                           }
+                    //                         } else {
+                    //                           reject(addProductsToWebflow);
+                    //                           return false;
+                    //                         }
+                    //                       }, index * 1000);
+                    //                     },
+                    //                   );
+                    //                 },
+                    //               );
+                    //               promise4
+                    //                 .then(() => {
+                    //                   let promise5 = new Promise(
+                    //                     (resolve: any, reject: any) => {
+                    //                       if (
+                    //                         filteredCategoriesArray.data.length ==
+                    //                         0
+                    //                       ) {
+                    //                         resolve();
+                    //                       }
+                    //                       console.log(
+                    //                         'categories',
+                    //                         filteredCategoriesArray.data.length,
+                    //                       );
+                    //                       filteredCategoriesArray.data.forEach(
+                    //                         async (
+                    //                           ele: any,
+                    //                           index: any,
+                    //                           array: any,
+                    //                         ) => {
+                    //                           setTimeout(async () => {
+                    //                             const addCategoriesToWebflow =
+                    //                               await CategoryService.create(
+                    //                                 payload.apiKey as string,
+                    //                                 categoryCollectionId,
+                    //                                 ele,
+                    //                                 siteResult.id,
+                    //                               );
+                    //                             if (
+                    //                               !addCategoriesToWebflow?.error
+                    //                             ) {
+                    //                               if (
+                    //                                 index ===
+                    //                                 array.length - 1
+                    //                               ) {
+                    //                                 resolve();
+                    //                               }
+                    //                             } else {
+                    //                               reject(addCategoriesToWebflow);
+                    //                               return false;
+                    //                             }
+                    //                           }, index * 1000);
+                    //                         },
+                    //                       );
+                    //                     },
+                    //                   );
+                    //                   promise5
+                    //                     .then(() => {
+                    //                       let promise6 = new Promise(
+                    //                         (resolve: any, reject: any) => {
+                    //                           if (
+                    //                             filteredMenusArray.data.length ==
+                    //                             0
+                    //                           ) {
+                    //                             resolve();
+                    //                           }
+                    //                           console.log(
+                    //                             'menus',
+                    //                             filteredMenusArray.data.length,
+                    //                           );
+                    //                           filteredMenusArray.data.forEach(
+                    //                             async (
+                    //                               ele: any,
+                    //                               index: any,
+                    //                               array: any,
+                    //                             ) => {
+                    //                               setTimeout(async () => {
+                    //                                 const addMenusToWebflow =
+                    //                                   await MenuService.create(
+                    //                                     payload.apiKey as string,
+                    //                                     menuCollectionId,
+                    //                                     ele,
+                    //                                     siteResult.id,
+                    //                                   );
+                    //                                 if (
+                    //                                   !addMenusToWebflow?.error
+                    //                                 ) {
+                    //                                   if (
+                    //                                     index ===
+                    //                                     array.length - 1
+                    //                                   ) {
+                    //                                     resolve();
+                    //                                   }
+                    //                                 } else {
+                    //                                   reject(addMenusToWebflow);
+                    //                                   return false;
+                    //                                 }
+                    //                               }, index * 1000);
+                    //                             },
+                    //                           );
+                    //                         },
+                    //                       );
+                    //                       promise6
+                    //                         .then((data) => {
+                    //                           return data;
+                    //                         })
+                    //                         .catch(async (error) => {
+                    //                           console.log('menus-catch', error);
+                    //                           const errorMsg = `${error?.errors?.response.data.message} while adding Menu`;
+                    //                           await ErrorLog.logErrorToDb(
+                    //                             error?.errors?.response.data.code,
+                    //                             errorMsg,
+                    //                             siteResult.id,
+                    //                             payload,
+                    //                             error?.errors?.response.config,
+                    //                           );
+                    //                           return getErrorResponse(
+                    //                             errorMsg,
+                    //                             error?.errors?.response,
+                    //                           );
+                    //                         });
+                    //                     })
+                    //                     .catch(async (error) => {
+                    //                       console.log('category-catch', error);
+                    //                       const errorMsg = `${error?.errors?.response.data.message} while adding categories`;
+                    //                       await ErrorLog.logErrorToDb(
+                    //                         error?.errors?.response.data.code,
+                    //                         errorMsg,
+                    //                         siteResult.id,
+                    //                         payload,
+                    //                         error?.errors?.response.config,
+                    //                       );
+                    //                       return getErrorResponse(
+                    //                         errorMsg,
+                    //                         error?.errors?.response,
+                    //                       );
+                    //                     });
+                    //                 })
+                    //                 .catch(async (error) => {
+                    //                   console.log('products-catch', error);
+                    //                   const errorMsg = `${error?.errors?.response.data.message} while adding products`;
+                    //                   await ErrorLog.logErrorToDb(
+                    //                     error?.errors?.response.data.code,
+                    //                     errorMsg,
+                    //                     siteResult.id,
+                    //                     payload,
+                    //                     error?.errors?.response.config,
+                    //                   );
+                    //                   return getErrorResponse(
+                    //                     errorMsg,
+                    //                     error?.errors?.response,
+                    //                   );
+                    //                 });
+                    //             })
+                    //             .catch(async (error) => {
+                    //               console.log('variants-catch', error);
+                    //               const errorMsg = `${error?.errors?.response.data.message} while adding variants`;
+                    //               await ErrorLog.logErrorToDb(
+                    //                 error?.errors?.response.data.code,
+                    //                 errorMsg,
+                    //                 siteResult.id,
+                    //                 payload,
+                    //                 error?.errors?.response.config,
+                    //               );
+                    //               return getErrorResponse(
+                    //                 errorMsg,
+                    //                 error?.errors?.response,
+                    //               );
+                    //             });
+                    //         })
+                    //         .catch(async (error) => {
+                    //           console.log('modifiers-catch', error);
+                    //           const errorMsg = `${error?.errors?.response.data.message} while adding modifiers`;
+                    //           await ErrorLog.logErrorToDb(
+                    //             error?.errors?.response.data.code,
+                    //             errorMsg,
+                    //             siteResult.id,
+                    //             payload,
+                    //             error?.errors?.response.config,
+                    //           );
+                    //           return getErrorResponse(
+                    //             errorMsg,
+                    //             error?.errors?.response,
+                    //           );
+                    //         });
+                    //     })
+                    //     .catch(async (error) => {
+                    //       console.log('options-catch', error);
+                    //       const errorMsg = ` while adding options, ${error?.errors?.response.data.message}`;
+                    //       await ErrorLog.logErrorToDb(
+                    //         error?.errors?.response.data.code,
+                    //         errorMsg,
+                    //         siteResult.id,
+                    //         payload,
+                    //         error?.errors?.config,
+                    //       );
+                    //       return getErrorResponse(
+                    //         errorMsg,
+                    //         error?.errors?.response,
+                    //       );
+                    //     });
                   } else {
                     console.log('schemamismatch-catch');
                     await ErrorLog.logErrorToDb(
