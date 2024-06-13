@@ -217,6 +217,9 @@ export default class SiteService {
                       console.log('options', filteredOptionsArray.data.length);
                       filteredOptionsArray.data.every(
                         async (ele: any, index: any, array: any) => {
+                          setInterval(async () => {
+                            await prisma.user.findMany();
+                          }, 1000);
                           setTimeout(async () => {
                             (async () => await prisma.user.findMany())();
                             const addOptionsToWebflow =
@@ -251,6 +254,9 @@ export default class SiteService {
                             );
                             filteredModifiersArray.data.forEach(
                               async (ele: any, index: any, array: any) => {
+                                setInterval(async () => {
+                                  await prisma.user.findMany();
+                                }, 1000);
                                 setTimeout(async () => {
                                   const addModifiersToWebflow =
                                     await ModifierService.create(
@@ -285,6 +291,9 @@ export default class SiteService {
                                 );
                                 filteredVariantsArray.data.forEach(
                                   async (ele: any, index: any, array: any) => {
+                                    setInterval(async () => {
+                                      await prisma.user.findMany();
+                                    }, 1000);
                                     setTimeout(async () => {
                                       const addVariantsToWebflow =
                                         await varientService.create(
@@ -325,6 +334,9 @@ export default class SiteService {
                                         index: any,
                                         array: any,
                                       ) => {
+                                        setInterval(async () => {
+                                          await prisma.user.findMany();
+                                        }, 1000);
                                         setTimeout(async () => {
                                           const addProductsToWebflow =
                                             await ProductService.create(
