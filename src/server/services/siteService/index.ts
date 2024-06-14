@@ -313,9 +313,7 @@ export default class SiteService {
                         );
                         if (productsData) {
                           console.log('import success');
-                          return getSuccessResponse(
-                            'site created successfully',
-                          );
+                        
                         }
                       }
                     }
@@ -659,6 +657,7 @@ export default class SiteService {
                     //         error?.errors?.response,
                     //       );
                     //     });
+                    return getSuccessResponse("site Added")
                   } else {
                     console.log('schemamismatch-catch');
                     await ErrorLog.logErrorToDb(
