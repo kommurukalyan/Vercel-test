@@ -1221,14 +1221,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredOptionsArray.data,
-            (ele) =>
+            (ele: any) =>
               OptionService.create(
                 payload.apiKey,
                 optionCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'options',
@@ -1236,14 +1235,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredModifiersArray.data,
-            (ele) =>
+            (ele: any) =>
               ModifierService.create(
                 payload.apiKey,
                 modifierCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'modifiers',
@@ -1251,14 +1249,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredVariantsArray.data,
-            (ele) =>
+            (ele: any) =>
               varientService.create(
                 payload.apiKey,
                 variantCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'variants',
@@ -1266,14 +1263,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredProductsArray.data,
-            (ele) =>
+            (ele: any) =>
               ProductService.create(
                 payload.apiKey,
                 productCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'products',
@@ -1281,14 +1277,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredCategoriesArray.data,
-            (ele) =>
+            (ele: any) =>
               CategoryService.create(
                 payload.apiKey,
                 categoryCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'categories',
@@ -1296,14 +1291,13 @@ export default class SiteService {
 
           await sendSequentiallyWithDelay(
             filteredMenusArray.data,
-            (ele) =>
+            (ele: any) =>
               MenuService.create(
                 payload.apiKey,
                 menuCollection.id,
                 ele,
                 siteResult.id,
               ),
-            1000,
             siteResult.id,
             payload,
             'menus',

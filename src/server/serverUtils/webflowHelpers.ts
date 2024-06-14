@@ -170,23 +170,43 @@ export const handleRateLimit = async (promiseArray: any[], limit: number) => {
 export async function sendSequentiallyWithDelay(
   items: any[],
   action: (item: any) => Promise<any>,
-  delay: number,
   siteId: number,
   payload: any,
   batchName: string,
 ) {
   for (const item of items) {
-    const result = await action(item);
-    if (result.error) {
-      const errorMsg = `Error in adding ${batchName}, ${result.errors.response.data.message}`;
-      await ErrorLog.logErrorToDb(
-        result.errors.response.data.code,
-        errorMsg,
-        siteId,
-        payload,
-        result.errors.response.config,
-      );
+    let retryCount = 0;
+    let success = false;
+
+    while (!success) {
+      try {
+        const result = await action(item);
+        if (result.error) {
+          throw result.errors.response;
+        }
+        success = true;
+      } catch (error) {
+        if (error.status === 429) {
+          retryCount++;
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+          console.log(
+            `Retrying ${batchName} item in ${retryDelay / 1000} seconds...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        } else {
+          const errorMsg = `Error in adding ${batchName}, ${error.data.message}`;
+          await ErrorLog.logErrorToDb(
+            error.data.code,
+            errorMsg,
+            siteId,
+            payload,
+            error.config,
+          );
+          break;
+        }
+      }
     }
-    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay between requests
   }
 }
