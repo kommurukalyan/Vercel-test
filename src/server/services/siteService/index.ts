@@ -51,6 +51,30 @@ export default class SiteService {
       return getErrorResponse();
     }
   };
+  public static addOptions = async (
+    options: any,
+    optionCollectionId: any,
+    apiKey: any,
+    siteId: any,
+  ) => {
+    console.log('entered options');
+    for (let i = 0; i < options.length; i++) {
+      const ele = options[i];
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          await OptionService.create(
+            apiKey as string,
+            optionCollectionId,
+            ele,
+            siteId,
+          );
+          resolve();
+        }, i * 1000);
+      });
+    }
+    return true;
+  };
+
   public static addModifiers = async (
     modifiers: any,
     modifierCollectionId: any,
@@ -58,28 +82,21 @@ export default class SiteService {
     siteId: any,
   ) => {
     console.log('entered modifiers');
-    const modifiersData = await modifiers.every(
-      async (ele: any, index: any, array: any) => {
-        (() => {
-          setTimeout(async () => {
-            const addModifiersToWebflow = await ModifierService.create(
-              apiKey as string,
-              modifierCollectionId,
-              ele,
-              siteId,
-            );
-            if (index === array.length - 1) {
-              return false;
-            }
-          }, index * 1000);
-        })();
-      },
-    );
-    if (modifiersData) {
-      return true;
-    } else {
-      return false;
+    for (let i = 0; i < modifiers.length; i++) {
+      const ele = modifiers[i];
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          await ModifierService.create(
+            apiKey as string,
+            modifierCollectionId,
+            ele,
+            siteId,
+          );
+          resolve();
+        }, i * 1000);
+      });
     }
+    return true;
   };
 
   public static addProducts = async (
@@ -89,28 +106,21 @@ export default class SiteService {
     siteId: any,
   ) => {
     console.log('entered products');
-    const productsData = await products.every(
-      async (ele: any, index: any, array: any) => {
-        (() => {
-          setTimeout(async () => {
-            const addProductsToWebflow = await ProductService.create(
-              apiKey as string,
-              productCollectionId,
-              ele,
-              siteId,
-            );
-            if (index === array.length - 1) {
-              return false;
-            }
-          }, index * 1000);
-        })();
-      },
-    );
-    if (productsData) {
-      return true;
-    } else {
-      return false;
+    for (let i = 0; i < products.length; i++) {
+      const ele = products[i];
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          await ProductService.create(
+            apiKey as string,
+            productCollectionId,
+            ele,
+            siteId,
+          );
+          resolve();
+        }, i * 1000);
+      });
     }
+    return true;
   };
   public static createSite = async (
     payload: AddSiteRequest,
@@ -272,24 +282,13 @@ export default class SiteService {
                     !filteredOptionsArray.error
                   ) {
                     console.log('options', filteredOptionsArray.data.length);
-                    const optionsData = filteredOptionsArray.data.every(
-                      async (ele: any, index: any, array: any) => {
-                        (() => {
-                          setTimeout(async () => {
-                            const addOptionsToWebflow =
-                              await OptionService.create(
-                                payload.apiKey as string,
-                                optionCollectionId,
-                                ele,
-                                siteResult.id,
-                              );
-                            if (index === array.length - 1) {
-                              return false;
-                            }
-                          }, index * 1000);
-                        })();
-                      },
+                    const optionsData = await this.addOptions(
+                      filteredOptionsArray.data,
+                      optionCollectionId,
+                      payload.apiKey,
+                      siteResult.id,
                     );
+
                     if (optionsData) {
                       console.log(
                         'modifiers',
