@@ -988,24 +988,24 @@ export default class SiteService {
         return getSuccessResponse('Site and data imported successfully');
       } catch (error) {
         // Handle any unexpected errors during import
-        // await ErrorLog.logErrorToDb(
-        //   'Import Error',
-        //   error.message,
-        //   siteResult.id,
-        //   payload,
-        // );
+        await ErrorLog.logErrorToDb(
+          'Import Error',
+          error.message,
+          siteResult.id,
+          payload,
+        );
         return getErrorResponse(
           'An unexpected error occurred during data import',
         );
       }
     } catch (error) {
       // Catch any unexpected errors during the entire process
-      // await ErrorLog.logErrorToDb(
-      //   'Process Error',
-      //   error.message,
-      //   null, // Here, `siteResult` does not exist yet, so `siteResult.id` is not available
-      //   payload,
-      // );
+      await ErrorLog.logErrorToDb(
+        'Process Error',
+        error.message,
+      parseInt(payload.siteId,10),// Here, `siteResult` does not exist yet, so `siteResult.id` is not available
+        payload,
+      );
       return getErrorResponse(
         'An unexpected error occurred during user validation and site creation',
       );

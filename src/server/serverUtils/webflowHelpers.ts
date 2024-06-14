@@ -4,6 +4,7 @@ import logger from './logger';
 import prisma from '@/lib/prisma';
 import { delay } from 'lodash';
 import AddSiteRequest from '../request/addSiteRequest';
+import ErrorLog from '../services/errorLog';
 
 //A custom method to get All the collections of a selected site
 export async function getCollectionsBySiteId(siteId: string, apiKey: string) {
@@ -117,15 +118,21 @@ export async function markDownToHTML(inputString: string) {
 
   return outString;
 }
-// export const handleServiceError = async (errMsg: string, service: any, error: any, siteId: number, payload: AddSiteRequest) => {
-//   await ErrorLog.logErrorToDb(
-//     error.errors.response.data.code,
-//     errMsg,
-//     siteId,
-//     payload,
-//   );
-//   console.error(errMsg, error);
-// };
+export const handleServiceError = async (
+  errMsg: string,
+  service: any,
+  error: any,
+  siteId: number,
+  payload: AddSiteRequest,
+) => {
+  await ErrorLog.logErrorToDb(
+    error.errors.response.data.code,
+    errMsg,
+    siteId,
+    payload,
+  );
+  console.error(errMsg, error);
+};
 
 export const handleServicePromise = async (
   promise: Promise<any>,
@@ -137,7 +144,13 @@ export const handleServicePromise = async (
     const result = await promise;
     return result;
   } catch (error) {
-    // await handleServiceError(`Error in inserting ${service.name}`, service, error, siteId, payload);
+    await handleServiceError(
+      `Error in inserting ${service.name}`,
+      service,
+      error,
+      siteId,
+      payload,
+    );
     return { error: true, data: error };
   }
 };
