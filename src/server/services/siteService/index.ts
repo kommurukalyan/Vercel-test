@@ -212,7 +212,7 @@ export default class SiteService {
                     !filteredModifiersArray.error &&
                     !filteredOptionsArray.error
                   ) {
-                    await importData(
+                    importData(
                       filteredOptionsArray.data,
                       filteredModifiersArray.data,
                       filteredProductsArray.data,
