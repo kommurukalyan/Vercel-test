@@ -164,6 +164,6 @@ export const handleRateLimit = async (promiseArray: any[], limit: number) => {
       .slice(i, i + limit)
       .map((promise) => promise());
     await Promise.all(promises);
-    await delay(60000); // Delay for 60 seconds (rate limit)
+    await delay(120000); // Delay for 60 seconds (rate limit)
   }
 };
