@@ -32,6 +32,7 @@ import CollectionService from '../collectionService';
 import varientService from '../varientService';
 import EncryptionClient from '@/server/serverUtils/EncryptionClient';
 import ErrorLog from '../errorLog';
+import { importData } from './importData';
 
 export default class SiteService {
   public static getSites = async (userId: number) => {
@@ -51,77 +52,7 @@ export default class SiteService {
       return getErrorResponse();
     }
   };
-  public static addOptions = async (
-    options: any,
-    optionCollectionId: any,
-    apiKey: any,
-    siteId: any,
-  ) => {
-    console.log('entered options');
-    for (let i = 0; i < options.length; i++) {
-      const ele = options[i];
-      await new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          await OptionService.create(
-            apiKey as string,
-            optionCollectionId,
-            ele,
-            siteId,
-          );
-          resolve();
-        }, i * 1000);
-      });
-    }
-    return true;
-  };
 
-  public static addModifiers = async (
-    modifiers: any,
-    modifierCollectionId: any,
-    apiKey: any,
-    siteId: any,
-  ) => {
-    console.log('entered modifiers');
-    for (let i = 0; i < modifiers.length; i++) {
-      const ele = modifiers[i];
-      await new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          await ModifierService.create(
-            apiKey as string,
-            modifierCollectionId,
-            ele,
-            siteId,
-          );
-          resolve();
-        }, i * 1000);
-      });
-    }
-    return true;
-  };
-
-  public static addProducts = async (
-    products: any,
-    productCollectionId: any,
-    apiKey: any,
-    siteId: any,
-  ) => {
-    console.log('entered products');
-    for (let i = 0; i < products.length; i++) {
-      const ele = products[i];
-      await new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          await ProductService.create(
-            apiKey as string,
-            productCollectionId,
-            ele,
-            siteId,
-          );
-          resolve();
-        }, i * 1000);
-      });
-    }
-    return true;
-  };
   public static createSite = async (
     payload: AddSiteRequest,
     userId: number,
@@ -281,42 +212,17 @@ export default class SiteService {
                     !filteredModifiersArray.error &&
                     !filteredOptionsArray.error
                   ) {
-                    console.log('options', filteredOptionsArray.data.length);
-                    const optionsData = await this.addOptions(
+                    await importData(
                       filteredOptionsArray.data,
+                      filteredModifiersArray.data,
+                      filteredProductsArray.data,
                       optionCollectionId,
+                      modifierCollectionId,
+                      productCollectionId,
                       payload.apiKey,
                       siteResult.id,
                     );
 
-                    if (optionsData) {
-                      console.log(
-                        'modifiers',
-                        filteredModifiersArray.data.length,
-                      );
-                      const modifiersData = await this.addModifiers(
-                        filteredModifiersArray.data,
-                        modifierCollectionId,
-                        payload.apiKey,
-                        siteResult.id,
-                      );
-                      if (modifiersData) {
-                        console.log(
-                          'products',
-                          filteredProductsArray.data.length,
-                        );
-                        const productsData = await this.addProducts(
-                          filteredProductsArray.data,
-                          productCollectionId,
-                          payload.apiKey,
-                          siteResult.id,
-                        );
-                        if (productsData) {
-                          console.log('import success');
-                        
-                        }
-                      }
-                    }
                     //
                     //   let promise1 = new Promise((resolve: any, reject: any) => {
                     //     if (filteredOptionsArray.data.length == 0) {
@@ -657,7 +563,7 @@ export default class SiteService {
                     //         error?.errors?.response,
                     //       );
                     //     });
-                    return getSuccessResponse("site Added")
+                    return getSuccessResponse('site Added');
                   } else {
                     console.log('schemamismatch-catch');
                     await ErrorLog.logErrorToDb(
