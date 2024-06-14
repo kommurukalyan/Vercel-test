@@ -167,3 +167,26 @@ export const handleRateLimit = async (promiseArray: any[], limit: number) => {
     await delay(120000); // Delay for 60 seconds (rate limit)
   }
 };
+export async function sendSequentiallyWithDelay(
+  items: any[],
+  action: (item: any) => Promise<any>,
+  delay: number,
+  siteId: number,
+  payload: any,
+  batchName: string,
+) {
+  for (const item of items) {
+    const result = await action(item);
+    if (result.error) {
+      const errorMsg = `Error in adding ${batchName}, ${result.errors.response.data.message}`;
+      await ErrorLog.logErrorToDb(
+        result.errors.response.data.code,
+        errorMsg,
+        siteId,
+        payload,
+        result.errors.response.config,
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+}
