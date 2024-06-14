@@ -9,9 +9,9 @@ import UserService from '@/server/services/userService';
 import prisma from '@/lib/prisma';
 
 import {
-  findCollectionId,
-  getAndSaveData,
   getCollectionsBySiteId,
+  handleRateLimit,
+  handleServicePromise,
 } from '@/server/serverUtils/webflowHelpers';
 
 import { getLocation } from '../goTabService/graphApiQueries/location';
@@ -627,277 +627,397 @@ export default class SiteService {
     userId: number,
   ) => {
     try {
-      // Check if the user exists
+      // Testing whether the logged-in user exists
       const user = await UserService.getUserById(userId);
 
       if (!user) {
         return getErrorResponse('Invalid userId');
       }
 
-      // Encrypt the apiKey
-      const encryptedKey = EncryptionClient.encryptData(payload.apiKey);
+      // Encrypting the apiKey
+      const encryptedkey = EncryptionClient.encryptData(payload.apiKey);
 
-      // Fetch collections for the site
+      // Fetching collections from Webflow
       const collections = await getCollectionsBySiteId(
         payload.siteId,
         payload.apiKey,
       );
 
-      if (!collections.error) {
-        // Extract collection ids
-        const locationCollectionId = findCollectionId(
-          collections.data,
-          'Locations',
-        );
-        const addressCollectionId = findCollectionId(
-          collections.data,
-          'Addresses',
-        );
-        const menuCollectionId = findCollectionId(collections.data, 'Menus');
-        const categoryCollectionId = findCollectionId(
-          collections.data,
-          'Categories',
-        );
-        const productCollectionId = findCollectionId(
-          collections.data,
-          'Products',
-        );
-        const modifierCollectionId = findCollectionId(
-          collections.data,
-          'Modifiers',
-        );
-        const variantCollectionId = findCollectionId(
-          collections.data,
-          'Variants',
-        );
-        const optionCollectionId = findCollectionId(
-          collections.data,
-          'Options',
-        );
+      if (collections.error) {
+        // If there's an error fetching collections, return error response
+        const errMsg = `Error fetching Collections from Webflow, ${collections.errors.response.data.message}`;
+        // await ErrorLog.logErrorToDb(
+        //   collections.errors.response.data.code,
+        //   errMsg,
+        //   parseInt(payload.siteId, 10),
+        //   payload,
+        // );
+        return getErrorResponse(errMsg, collections);
+      }
 
-        // Check if site or location already exists
-        const siteExist = await prisma.site.findUnique({
-          where: {
-            webflowSiteId: payload.siteId,
-          },
-        });
-        const locationExist = await prisma.site.findUnique({
-          where: {
-            locationUuid: payload.locationUuid,
-          },
-        });
+      // Extracting collection IDs
+      const locationCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Locations',
+      ).id;
+      const addressCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Addresses',
+      ).id;
+      const menuCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Menus',
+      ).id;
+      const categoryCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Categories',
+      ).id;
+      const productCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Products',
+      ).id;
+      const modifierCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Modifiers',
+      ).id;
+      const variantCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Variants',
+      ).id;
+      const optionCollectionId = collections.data.find(
+        (ele: any) => ele.displayName === 'Options',
+      ).id;
 
-        if (siteExist || locationExist) {
-          if (siteExist && locationExist) {
-            const isSiteDeleted = await prisma.site.findUnique({
-              where: {
-                webflowSiteId: payload.siteId,
-                locationUuid: payload.locationUuid,
-                isDeleted: false,
-              },
-            });
-            if (isSiteDeleted === null) {
-              await prisma.site.update({
-                where: { webflowSiteId: payload.siteId },
-                data: {
-                  isDeleted: false,
-                },
-              });
-              return getSuccessResponse(
-                'Site is enabled again. Use Repoll to poll the latest data.',
-              );
-            } else {
-              return getErrorResponse(
-                'Site already exists. Please try Repolling.',
-              );
-            }
-          }
-          if (siteExist) {
-            return getErrorResponse(
-              `Site ${siteExist.webflowSiteId} already mapped to Location ${siteExist.locationUuid}. Please use the same details to enable it again.`,
-            );
-          }
-          if (locationExist) {
-            return getErrorResponse(
-              `Location ${locationExist.locationUuid} already mapped to Site ${locationExist.webflowSiteId}. Please use the same details to enable it again.`,
-            );
-          }
-        } else {
-          // Create new site
-          const siteResult = await prisma.site.create({
-            data: {
+      // Check if site or location already exists
+      const siteExist = await prisma.site.findUnique({
+        where: {
+          webflowSiteId: payload.siteId,
+        },
+      });
+
+      const locationExist = await prisma.site.findUnique({
+        where: {
+          locationUuid: payload.locationUuid,
+        },
+      });
+
+      if (siteExist || locationExist) {
+        if (siteExist && locationExist) {
+          const isSiteDeleted = await prisma.site.findUnique({
+            where: {
               webflowSiteId: payload.siteId,
               locationUuid: payload.locationUuid,
-              locationName: payload.locationName,
-              webflowLocationCollectionId: locationCollectionId,
-              webflowAddressCollectionId: addressCollectionId,
-              webflowMenuCollectionId: menuCollectionId,
-              webflowCategoryCollectionId: categoryCollectionId,
-              webflowProductCollectionId: productCollectionId,
-              webflowModifierCollectionId: modifierCollectionId,
-              webflowVariantCollectionId: variantCollectionId,
-              webflowOptionCollectionId: optionCollectionId,
-              apiKey: encryptedKey,
-              userId: userId,
+              isDeleted: false,
             },
           });
 
-          if (siteResult) {
-            console.log('Site details:', siteResult);
-
-            // Fetch location data from GoTab
-            const goTabLocationData = await getLocation(payload.locationUuid);
-
-            if (!goTabLocationData.error) {
-              // Add address to webflow
-              const addAddressToWebflow = await AddressService.create(
-                payload.apiKey,
-                addressCollectionId,
-                goTabLocationData.data.address,
-                siteResult.id,
-              );
-
-              if (!addAddressToWebflow.error) {
-                console.log('Address:', addAddressToWebflow);
-
-                // Add location to webflow
-                const addLocationToWebflow = await LocationService.create(
-                  payload.apiKey,
-                  locationCollectionId,
-                  goTabLocationData.data,
-                  addAddressToWebflow.data.data.id,
-                  siteResult.id,
-                );
-
-                if (!addLocationToWebflow.error) {
-                  console.log('Location:', addLocationToWebflow);
-
-                  // Fetch options, variants, modifiers, products, categories, and menus
-                  const [
-                    optionsRes,
-                    modifiersRes,
-                    variantsRes,
-                    productsRes,
-                    categoriesRes,
-                    menusRes,
-                  ] = await Promise.all([
-                    getAndSaveData(
-                      getOptions,
-                      goTabLocationData.data.locationId,
-                      optionCollectionId,
-                      OptionService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                    getAndSaveData(
-                      getModifiers,
-                      goTabLocationData.data.locationId,
-                      modifierCollectionId,
-                      ModifierService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                    getAndSaveData(
-                      getVariants,
-                      goTabLocationData.data.locationId,
-                      variantCollectionId,
-                      varientService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                    getAndSaveData(
-                      getProducts,
-                      goTabLocationData.data.locationId,
-                      productCollectionId,
-                      ProductService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                    getAndSaveData(
-                      getCategories,
-                      goTabLocationData.data.locationId,
-                      categoryCollectionId,
-                      CategoryService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                    getAndSaveData(
-                      getMenus,
-                      goTabLocationData.data.locationId,
-                      menuCollectionId,
-                      MenuService,
-                      payload.apiKey,
-                      siteResult.id,
-                    ),
-                  ]);
-
-                  if (
-                    optionsRes &&
-                    modifiersRes &&
-                    variantsRes &&
-                    productsRes &&
-                    categoriesRes &&
-                    menusRes
-                  ) {
-                    return getSuccessResponse('Site added successfully.');
-                  } else {
-                    // await ErrorLog.logErrorToDb(
-                    //   'Schema Mismatch/property not found',
-                    //   'Schema Mismatch/property not found',
-                    //   siteResult.id,
-                    //   payload,
-                    // );
-                    return getErrorResponse(
-                      'Error occurred due to server error',
-                    );
-                  }
-                } else {
-                  const errMsg = `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`;
-                  // await ErrorLog.logErrorToDb(
-                  //   addLocationToWebflow.errors.response.data.code,
-                  //   errMsg,
-                  //   siteResult.id,
-                  //   payload,
-                  //   goTabLocationData.errors.config,
-                  // );
-                }
-              } else {
-                const errMsg = `Error in inserting Address, ${addAddressToWebflow.errors.response.data.message}`;
-                // await ErrorLog.logErrorToDb(
-                //   addAddressToWebflow.errors.response.data.code,
-                //   errMsg,
-                //   siteResult.id,
-                //   payload,
-                //   goTabLocationData.errors.config,
-                // );
-              }
-            } else {
-              const errMsg = `Error fetching location data, ${goTabLocationData.errors.response.data.message}`;
-              return getErrorResponse(errMsg);
-            }
+          if (isSiteDeleted === null) {
+            await prisma.site.update({
+              where: { webflowSiteId: payload.siteId },
+              data: {
+                isDeleted: false,
+              },
+            });
+            return getSuccessResponse(
+              'Site is Enabled Again. Use Repoll to poll the latest data',
+            );
           } else {
-            return getErrorResponse('Failed to create site.');
+            return getErrorResponse(
+              'Site Already Exists, Please try Repolling',
+            );
           }
         }
-      } else {
-        const errMsg = `Error fetching Collections from webflow, ${collections.errors.response.data.message}`;
-        await ErrorLog.logErrorToDb(
-          collections.errors.response.data.code,
-          errMsg,
-          parseInt(payload.siteId, 10),
-          payload,
+
+        if (siteExist) {
+          return getErrorResponse(
+            `Site ${siteExist.webflowSiteId} Already mapped to Location ${siteExist.locationUuid}. Please use the same Details to enable it again`,
+          );
+        }
+
+        if (locationExist) {
+          return getErrorResponse(
+            `Location ${locationExist.locationUuid} Already mapped to Site ${locationExist.webflowSiteId}. Please use the same Details to enable it again`,
+          );
+        }
+      }
+
+      // Create the site if it doesn't already exist
+      const siteResult = await prisma.site.create({
+        data: {
+          webflowSiteId: payload.siteId,
+          locationUuid: payload.locationUuid,
+          locationName: payload.locationName,
+          webflowLocationCollectionId: locationCollectionId,
+          webflowAddressCollectionId: addressCollectionId,
+          webflowMenuCollectionId: menuCollectionId,
+          webflowCategoryCollectionId: categoryCollectionId,
+          webflowProductCollectionId: productCollectionId,
+          webflowModifierCollectionId: modifierCollectionId,
+          webflowVariantCollectionId: variantCollectionId,
+          webflowOptionCollectionId: optionCollectionId,
+          apiKey: encryptedkey,
+          userId: userId,
+        },
+      });
+
+      if (!siteResult) {
+        return getErrorResponse('Failed to create site');
+      }
+
+      // Fetching Gotab location data
+      const goTabLocationData = await getLocation(payload.locationUuid);
+
+      if (goTabLocationData.error) {
+        // If there's an error fetching location data, log the error and return error response
+        const errMsg = `Error fetching location data from Gotab, ${goTabLocationData.errors.response.data.message}`;
+        // await ErrorLog.logErrorToDb(
+        //   goTabLocationData.errors.response.data.code,
+        //   errMsg,
+        //   siteResult.id,
+        //   payload,
+        //   goTabLocationData.errors.config,
+        // );
+        return getErrorResponse(errMsg, goTabLocationData);
+      }
+
+      // Adding Address details to Webflow
+      const addAddressToWebflow = await AddressService.create(
+        payload.apiKey,
+        addressCollectionId,
+        goTabLocationData.data.address,
+        siteResult.id,
+      );
+
+      if (addAddressToWebflow.error) {
+        // If there's an error adding address details, handle the error
+        // await handleServiceError(
+        //   `Error in inserting Address, ${addAddressToWebflow.errors.response.data.message}`,
+        //   AddressService,
+        //   addAddressToWebflow,
+        //   siteResult.id,
+        //   payload,
+        // );
+
+        // Adding Location details to Webflow
+        const addLocationToWebflow = await LocationService.create(
+          payload.apiKey,
+          locationCollectionId,
+          goTabLocationData.data,
+          addAddressToWebflow.data.data.id,
+          siteResult.id,
         );
-        return getErrorResponse(errMsg);
+
+        if (addLocationToWebflow.error) {
+          // If there's an error adding location details, handle the error
+          //   await handleServiceError(
+          //     `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`,
+          //     LocationService,
+          //     addLocationToWebflow,
+          //     siteResult.id,
+          //     payload,
+          //   );
+          // }
+        }
+
+        // Fetching Gotab data
+        const filteredOptionsArray = await getOptions(
+          goTabLocationData.data.locationId,
+        );
+        const filteredVariantsArray = await getVariants(
+          goTabLocationData.data.locationId,
+        );
+        const filteredModifiersArray = await getModifiers(
+          goTabLocationData.data.locationId,
+        );
+        const filteredProductsArray = await getProducts(
+          goTabLocationData.data.locationId,
+        );
+        const filteredCategoriesArray = await getCategories(
+          goTabLocationData.data.locationId,
+        );
+        const filteredMenusArray = await getMenus(
+          goTabLocationData.data.locationId,
+        );
+
+        if (
+          filteredProductsArray.error ||
+          filteredCategoriesArray.error ||
+          filteredMenusArray.error ||
+          filteredModifiersArray.error ||
+          filteredOptionsArray.error
+        ) {
+          // If there's an error fetching Gotab data, log the error and return error response
+          console.log('schemamismatch-catch');
+          await ErrorLog.logErrorToDb(
+            'Schema Mismatch/property not found',
+            'Schema Mismatch/property not found',
+            siteResult.id,
+            payload,
+          );
+          return getErrorResponse(
+            'Error may be occurred due to server error or schema mismatch or property not found',
+          );
+        }
+
+        // Import statements (continued from previous code snippet)
+
+        // Importing data sequentially
+        try {
+          const promises = [];
+
+          // Push all option creation promises
+          if (filteredOptionsArray.data.length > 0) {
+            console.log('options', filteredOptionsArray.data.length);
+            for (const ele of filteredOptionsArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  OptionService.create(
+                    payload.apiKey as string,
+                    optionCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  OptionService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Push all modifier creation promises
+          if (filteredModifiersArray.data.length > 0) {
+            console.log('modifiers', filteredModifiersArray.data.length);
+            for (const ele of filteredModifiersArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  ModifierService.create(
+                    payload.apiKey as string,
+                    modifierCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  ModifierService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Push all product creation promises
+          if (filteredProductsArray.data.length > 0) {
+            console.log('products', filteredProductsArray.data.length);
+            for (const ele of filteredProductsArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  ProductService.create(
+                    payload.apiKey as string,
+                    productCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  ProductService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Push all category creation promises
+          if (filteredCategoriesArray.data.length > 0) {
+            console.log('categories', filteredCategoriesArray.data.length);
+            for (const ele of filteredCategoriesArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  CategoryService.create(
+                    payload.apiKey as string,
+                    categoryCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  CategoryService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Push all menu creation promises
+          if (filteredMenusArray.data.length > 0) {
+            console.log('menus', filteredMenusArray.data.length);
+            for (const ele of filteredMenusArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  MenuService.create(
+                    payload.apiKey as string,
+                    menuCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  MenuService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Push all variant creation promises
+          if (filteredVariantsArray.data.length > 0) {
+            console.log('variants', filteredVariantsArray.data.length);
+            for (const ele of filteredVariantsArray.data) {
+              promises.push(async () => {
+                await handleServicePromise(
+                  VarientService.create(
+                    payload.apiKey as string,
+                    variantCollectionId,
+                    ele,
+                    siteResult.id,
+                  ),
+                  VarientService,
+                  payload,
+                  siteResult.id,
+                );
+              });
+            }
+          }
+
+          // Handle rate limit for batch processing
+          await handleRateLimit(promises, 60);
+
+          // After all data import, return success response
+          return getSuccessResponse('Site and data imported successfully');
+        } catch (error) {
+          // Handle any unexpected errors during import
+          await ErrorLog.logErrorToDb(
+            'Import Error',
+            error.message,
+            siteResult.id,
+            payload,
+          );
+          return getErrorResponse(
+            'An unexpected error occurred during data import',
+          );
+        }
+      } else {
+        // Catch any unexpected errors during the entire process
+        // await ErrorLog.logErrorToDb(
+        //   'Process Error',
+        //   error.message,
+        //   siteResult.id,
+        //   payload,
+        // );
+        return getErrorResponse(
+          'An unexpected error occurred during site creation and data import',
+        );
       }
     } catch (error) {
-      console.error('Error in createSite:', error);
-      await ErrorLog.logErrorToDb(
-        'Internal Server Error',
-        error.message,
-        undefined,
-        payload,
+      // Catch any unexpected errors during the entire process
+      // await ErrorLog.logErrorToDb(
+      //   'Process Error',
+      //   error.message,
+      //   null, // Here, `siteResult` does not exist yet, so `siteResult.id` is not available
+      //   payload,
+      // );
+      return getErrorResponse(
+        'An unexpected error occurred during user validation and site creation',
       );
-      return getErrorResponse('Internal Server Error');
     }
   };
 

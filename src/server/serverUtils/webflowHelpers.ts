@@ -3,6 +3,7 @@ import { getErrorResponse, getSuccessResponse } from './helpers';
 import logger from './logger';
 import prisma from '@/lib/prisma';
 import { delay } from 'lodash';
+import AddSiteRequest from '../request/addSiteRequest';
 
 //A custom method to get All the collections of a selected site
 export async function getCollectionsBySiteId(siteId: string, apiKey: string) {
@@ -116,45 +117,40 @@ export async function markDownToHTML(inputString: string) {
 
   return outString;
 }
-// Helper function to find collection id by display name
-export const findCollectionId = (collections: any[], name: string) => {
-  const collection = collections.find((ele: any) => ele.displayName === name);
-  return collection ? collection.id : null;
-};
+// export const handleServiceError = async (errMsg: string, service: any, error: any, siteId: number, payload: AddSiteRequest) => {
+//   await ErrorLog.logErrorToDb(
+//     error.errors.response.data.code,
+//     errMsg,
+//     siteId,
+//     payload,
+//   );
+//   console.error(errMsg, error);
+// };
 
-// Helper function to get data from external API and save to webflow
-export const getAndSaveData = async (
-  getDataFunc: Function,
-  locationId: any,
-  collectionId: any,
+export const handleServicePromise = async (
+  promise: Promise<any>,
   service: any,
-  apiKey: any,
-  siteId: any,
+  payload: AddSiteRequest,
+  siteId: number,
 ) => {
   try {
-    const filteredData = await getDataFunc(locationId);
-    if (!filteredData.error) {
-      for (let i = 0; i < filteredData.data.length; i++) {
-        const addDataToWebflow = await service.create(
-          apiKey,
-          collectionId,
-          filteredData.data[i],
-          siteId,
-        );
-        if (addDataToWebflow.error) {
-          // await handleServiceError(`${addDataToWebflow.errors.response.data.message} while adding ${service.name}`, service, addDataToWebflow, siteId);
-          return false;
-        }
-      }
-      return true;
-    } else {
-      const errMsg = `Error fetching data from external API, ${filteredData.errors.response.data.message}`;
-      // await ErrorLog.logErrorToDb(filteredData.errors.response.data.code, errMsg, siteId, null, filteredData.errors.config);
-      return false;
-    }
+    const result = await promise;
+    return result;
   } catch (error) {
-    console.error(`Error in getAndSaveData for ${service.name}:`, error);
-    // await ErrorLog.logErrorToDb('Internal Server Error', error.message, undefined, null);
-    return false;
+    // await handleServiceError(`Error in inserting ${service.name}`, service, error, siteId, payload);
+    return { error: true, data: error };
+  }
+};
+
+export const handleRateLimit = async (promiseArray: any[], limit: number) => {
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  for (let i = 0; i < promiseArray.length; i += limit) {
+    const promises = promiseArray
+      .slice(i, i + limit)
+      .map((promise) => promise());
+    await Promise.all(promises);
+    await delay(60000); // Delay for 60 seconds (rate limit)
   }
 };
