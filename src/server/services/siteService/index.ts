@@ -790,221 +790,212 @@ export default class SiteService {
         //   siteResult.id,
         //   payload,
         // );
+        return getErrorResponse('Error inserting address');
+      }
 
-        // Adding Location details to Webflow
-        const addLocationToWebflow = await LocationService.create(
-          payload.apiKey,
-          locationCollectionId,
-          goTabLocationData.data,
-          addAddressToWebflow.data.data.id,
+      // Adding Location details to Webflow
+      const addLocationToWebflow = await LocationService.create(
+        payload.apiKey,
+        locationCollectionId,
+        goTabLocationData.data,
+        addAddressToWebflow.data.data.id,
+        siteResult.id,
+      );
+
+      if (addLocationToWebflow.error) {
+        // If there's an error adding location details, handle the error
+        //   await handleServiceError(
+        //     `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`,
+        //     LocationService,
+        //     addLocationToWebflow,
+        //     siteResult.id,
+        //     payload,
+        //   );
+        // }
+        return getErrorResponse('Error inserting location');
+      }
+
+      // Fetching Gotab data
+      const filteredOptionsArray = await getOptions(
+        goTabLocationData.data.locationId,
+      );
+      const filteredVariantsArray = await getVariants(
+        goTabLocationData.data.locationId,
+      );
+      const filteredModifiersArray = await getModifiers(
+        goTabLocationData.data.locationId,
+      );
+      const filteredProductsArray = await getProducts(
+        goTabLocationData.data.locationId,
+      );
+      const filteredCategoriesArray = await getCategories(
+        goTabLocationData.data.locationId,
+      );
+      const filteredMenusArray = await getMenus(
+        goTabLocationData.data.locationId,
+      );
+
+      if (
+        filteredProductsArray.error ||
+        filteredCategoriesArray.error ||
+        filteredMenusArray.error ||
+        filteredModifiersArray.error ||
+        filteredOptionsArray.error
+      ) {
+        // If there's an error fetching Gotab data, log the error and return error response
+        console.log('schemamismatch-catch');
+        await ErrorLog.logErrorToDb(
+          'Schema Mismatch/property not found',
+          'Schema Mismatch/property not found',
           siteResult.id,
+          payload,
         );
+        return getErrorResponse(
+          'Error may be occurred due to server error or schema mismatch or property not found',
+        );
+      }
 
-        if (addLocationToWebflow.error) {
-          // If there's an error adding location details, handle the error
-          //   await handleServiceError(
-          //     `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`,
-          //     LocationService,
-          //     addLocationToWebflow,
-          //     siteResult.id,
-          //     payload,
-          //   );
-          // }
+      // Import statements (continued from previous code snippet)
+
+      // Importing data sequentially
+      try {
+        const promises = [];
+
+        // Push all option creation promises
+        if (filteredOptionsArray.data.length > 0) {
+          console.log('options', filteredOptionsArray.data.length);
+          for (const ele of filteredOptionsArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                OptionService.create(
+                  payload.apiKey as string,
+                  optionCollectionId,
+                  ele,
+                  siteResult.id,
+                ),
+                OptionService,
+                payload,
+                siteResult.id,
+              );
+            });
+          }
         }
 
-        // Fetching Gotab data
-        const filteredOptionsArray = await getOptions(
-          goTabLocationData.data.locationId,
-        );
-        const filteredVariantsArray = await getVariants(
-          goTabLocationData.data.locationId,
-        );
-        const filteredModifiersArray = await getModifiers(
-          goTabLocationData.data.locationId,
-        );
-        const filteredProductsArray = await getProducts(
-          goTabLocationData.data.locationId,
-        );
-        const filteredCategoriesArray = await getCategories(
-          goTabLocationData.data.locationId,
-        );
-        const filteredMenusArray = await getMenus(
-          goTabLocationData.data.locationId,
-        );
-
-        if (
-          filteredProductsArray.error ||
-          filteredCategoriesArray.error ||
-          filteredMenusArray.error ||
-          filteredModifiersArray.error ||
-          filteredOptionsArray.error
-        ) {
-          // If there's an error fetching Gotab data, log the error and return error response
-          console.log('schemamismatch-catch');
-          await ErrorLog.logErrorToDb(
-            'Schema Mismatch/property not found',
-            'Schema Mismatch/property not found',
-            siteResult.id,
-            payload,
-          );
-          return getErrorResponse(
-            'Error may be occurred due to server error or schema mismatch or property not found',
-          );
+        // Push all modifier creation promises
+        if (filteredModifiersArray.data.length > 0) {
+          console.log('modifiers', filteredModifiersArray.data.length);
+          for (const ele of filteredModifiersArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                ModifierService.create(
+                  payload.apiKey as string,
+                  modifierCollectionId,
+                  ele,
+                  siteResult.id,
+                ),
+                ModifierService,
+                payload,
+                siteResult.id,
+              );
+            });
+          }
         }
 
-        // Import statements (continued from previous code snippet)
-
-        // Importing data sequentially
-        try {
-          const promises = [];
-
-          // Push all option creation promises
-          if (filteredOptionsArray.data.length > 0) {
-            console.log('options', filteredOptionsArray.data.length);
-            for (const ele of filteredOptionsArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  OptionService.create(
-                    payload.apiKey as string,
-                    optionCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  OptionService,
-                  payload,
+        // Push all product creation promises
+        if (filteredProductsArray.data.length > 0) {
+          console.log('products', filteredProductsArray.data.length);
+          for (const ele of filteredProductsArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                ProductService.create(
+                  payload.apiKey as string,
+                  productCollectionId,
+                  ele,
                   siteResult.id,
-                );
-              });
-            }
+                ),
+                ProductService,
+                payload,
+                siteResult.id,
+              );
+            });
           }
-
-          // Push all modifier creation promises
-          if (filteredModifiersArray.data.length > 0) {
-            console.log('modifiers', filteredModifiersArray.data.length);
-            for (const ele of filteredModifiersArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  ModifierService.create(
-                    payload.apiKey as string,
-                    modifierCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  ModifierService,
-                  payload,
-                  siteResult.id,
-                );
-              });
-            }
-          }
-
-          // Push all product creation promises
-          if (filteredProductsArray.data.length > 0) {
-            console.log('products', filteredProductsArray.data.length);
-            for (const ele of filteredProductsArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  ProductService.create(
-                    payload.apiKey as string,
-                    productCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  ProductService,
-                  payload,
-                  siteResult.id,
-                );
-              });
-            }
-          }
-
-          // Push all category creation promises
-          if (filteredCategoriesArray.data.length > 0) {
-            console.log('categories', filteredCategoriesArray.data.length);
-            for (const ele of filteredCategoriesArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  CategoryService.create(
-                    payload.apiKey as string,
-                    categoryCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  CategoryService,
-                  payload,
-                  siteResult.id,
-                );
-              });
-            }
-          }
-
-          // Push all menu creation promises
-          if (filteredMenusArray.data.length > 0) {
-            console.log('menus', filteredMenusArray.data.length);
-            for (const ele of filteredMenusArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  MenuService.create(
-                    payload.apiKey as string,
-                    menuCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  MenuService,
-                  payload,
-                  siteResult.id,
-                );
-              });
-            }
-          }
-
-          // Push all variant creation promises
-          if (filteredVariantsArray.data.length > 0) {
-            console.log('variants', filteredVariantsArray.data.length);
-            for (const ele of filteredVariantsArray.data) {
-              promises.push(async () => {
-                await handleServicePromise(
-                  VarientService.create(
-                    payload.apiKey as string,
-                    variantCollectionId,
-                    ele,
-                    siteResult.id,
-                  ),
-                  VarientService,
-                  payload,
-                  siteResult.id,
-                );
-              });
-            }
-          }
-
-          // Handle rate limit for batch processing
-          await handleRateLimit(promises, 60);
-
-          // After all data import, return success response
-          return getSuccessResponse('Site and data imported successfully');
-        } catch (error) {
-          // Handle any unexpected errors during import
-          await ErrorLog.logErrorToDb(
-            'Import Error',
-            error.message,
-            siteResult.id,
-            payload,
-          );
-          return getErrorResponse(
-            'An unexpected error occurred during data import',
-          );
         }
-      } else {
-        // Catch any unexpected errors during the entire process
+
+        // Push all category creation promises
+        if (filteredCategoriesArray.data.length > 0) {
+          console.log('categories', filteredCategoriesArray.data.length);
+          for (const ele of filteredCategoriesArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                CategoryService.create(
+                  payload.apiKey as string,
+                  categoryCollectionId,
+                  ele,
+                  siteResult.id,
+                ),
+                CategoryService,
+                payload,
+                siteResult.id,
+              );
+            });
+          }
+        }
+
+        // Push all menu creation promises
+        if (filteredMenusArray.data.length > 0) {
+          console.log('menus', filteredMenusArray.data.length);
+          for (const ele of filteredMenusArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                MenuService.create(
+                  payload.apiKey as string,
+                  menuCollectionId,
+                  ele,
+                  siteResult.id,
+                ),
+                MenuService,
+                payload,
+                siteResult.id,
+              );
+            });
+          }
+        }
+
+        // Push all variant creation promises
+        if (filteredVariantsArray.data.length > 0) {
+          console.log('variants', filteredVariantsArray.data.length);
+          for (const ele of filteredVariantsArray.data) {
+            promises.push(async () => {
+              await handleServicePromise(
+                VarientService.create(
+                  payload.apiKey as string,
+                  variantCollectionId,
+                  ele,
+                  siteResult.id,
+                ),
+                VarientService,
+                payload,
+                siteResult.id,
+              );
+            });
+          }
+        }
+
+        // Handle rate limit for batch processing
+        await handleRateLimit(promises, 60);
+
+        // After all data import, return success response
+        return getSuccessResponse('Site and data imported successfully');
+      } catch (error) {
+        // Handle any unexpected errors during import
         // await ErrorLog.logErrorToDb(
-        //   'Process Error',
+        //   'Import Error',
         //   error.message,
         //   siteResult.id,
         //   payload,
         // );
         return getErrorResponse(
-          'An unexpected error occurred during site creation and data import',
+          'An unexpected error occurred during data import',
         );
       }
     } catch (error) {
