@@ -116,3 +116,45 @@ export async function markDownToHTML(inputString: string) {
 
   return outString;
 }
+// Helper function to find collection id by display name
+export const findCollectionId = (collections: any[], name: string) => {
+  const collection = collections.find((ele: any) => ele.displayName === name);
+  return collection ? collection.id : null;
+};
+
+// Helper function to get data from external API and save to webflow
+export const getAndSaveData = async (
+  getDataFunc: Function,
+  locationId: any,
+  collectionId: any,
+  service: any,
+  apiKey: any,
+  siteId: any,
+) => {
+  try {
+    const filteredData = await getDataFunc(locationId);
+    if (!filteredData.error) {
+      for (let i = 0; i < filteredData.data.length; i++) {
+        const addDataToWebflow = await service.create(
+          apiKey,
+          collectionId,
+          filteredData.data[i],
+          siteId,
+        );
+        if (addDataToWebflow.error) {
+          // await handleServiceError(`${addDataToWebflow.errors.response.data.message} while adding ${service.name}`, service, addDataToWebflow, siteId);
+          return false;
+        }
+      }
+      return true;
+    } else {
+      const errMsg = `Error fetching data from external API, ${filteredData.errors.response.data.message}`;
+      // await ErrorLog.logErrorToDb(filteredData.errors.response.data.code, errMsg, siteId, null, filteredData.errors.config);
+      return false;
+    }
+  } catch (error) {
+    console.error(`Error in getAndSaveData for ${service.name}:`, error);
+    // await ErrorLog.logErrorToDb('Internal Server Error', error.message, undefined, null);
+    return false;
+  }
+};

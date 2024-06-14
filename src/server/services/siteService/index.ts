@@ -8,7 +8,11 @@ import logger from '@/server/serverUtils/logger';
 import UserService from '@/server/services/userService';
 import prisma from '@/lib/prisma';
 
-import { getCollectionsBySiteId } from '@/server/serverUtils/webflowHelpers';
+import {
+  findCollectionId,
+  getAndSaveData,
+  getCollectionsBySiteId,
+} from '@/server/serverUtils/webflowHelpers';
 
 import { getLocation } from '../goTabService/graphApiQueries/location';
 import { getProducts } from '../goTabService/graphApiQueries/product';
@@ -53,52 +57,625 @@ export default class SiteService {
     }
   };
 
+  // public static createSite = async (
+  //   payload: AddSiteRequest,
+  //   userId: number,
+  // ) => {
+  //   try {
+  //     // testing whether the logged in user existed
+  //     const user = await UserService.getUserById(userId);
+
+  //     if (!user) {
+  //       return getErrorResponse('Invalid userId');
+  //     }
+  //     // encrypting the apiKey
+  //     const encryptedkey = EncryptionClient.encryptData(payload.apiKey);
+  //     //a helper function is created to call all the collections of a site
+  //     const collections = await getCollectionsBySiteId(
+  //       payload.siteId,
+  //       payload.apiKey,
+  //     );
+
+  //     if (!collections.error) {
+  //       // filtering the collections based on collectionname
+  //       const locationCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Locations',
+  //       )[0].id;
+  //       const addressCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Addresses',
+  //       )[0].id;
+  //       const menuCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Menus',
+  //       )[0].id;
+  //       const categoryCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Categories',
+  //       )[0].id;
+  //       const productCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Products',
+  //       )[0].id;
+  //       const modifierCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Modifiers',
+  //       )[0].id;
+  //       const variantCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Variants',
+  //       )[0].id;
+  //       const optionCollectionId = collections.data.filter(
+  //         (ele: any) => ele.displayName === 'Options',
+  //       )[0].id;
+
+  //       const siteExist = await prisma.site.findUnique({
+  //         where: {
+  //           webflowSiteId: payload.siteId,
+  //         },
+  //       });
+  //       const locationExist = await prisma.site.findUnique({
+  //         where: {
+  //           locationUuid: payload.locationUuid,
+  //         },
+  //       });
+  //       if (siteExist || locationExist) {
+  //         if (siteExist && locationExist) {
+  //           const isSiteDeleted = await prisma.site.findUnique({
+  //             where: {
+  //               webflowSiteId: payload.siteId,
+  //               locationUuid: payload.locationUuid,
+  //               isDeleted: false,
+  //             },
+  //           });
+  //           if (isSiteDeleted === null) {
+  //             await prisma.site.update({
+  //               where: { webflowSiteId: payload.siteId },
+  //               data: {
+  //                 isDeleted: false,
+  //               },
+  //             });
+  //             return getSuccessResponse(
+  //               'Site is Enabled Again.Use Repoll to poll the latest data',
+  //             );
+  //           } else {
+  //             return getErrorResponse(
+  //               'Site Already Exists,Please try Repolling',
+  //             );
+  //           }
+  //         }
+  //         if (siteExist) {
+  //           return getErrorResponse(
+  //             `Site ${siteExist.webflowSiteId} Already mapped to Location ${siteExist.locationUuid}.Please use the same Details to enable it again`,
+  //           );
+  //         }
+  //         if (locationExist) {
+  //           return getErrorResponse(
+  //             `Location ${locationExist.locationUuid} Already mapped to Site ${locationExist.webflowSiteId} Please use the same Details to enable it again`,
+  //           );
+  //         }
+  //       } else {
+  //         const siteResult = await prisma.site.create({
+  //           data: {
+  //             webflowSiteId: payload.siteId,
+  //             locationUuid: payload.locationUuid,
+  //             locationName: payload.locationName,
+  //             webflowLocationCollectionId: locationCollectionId,
+  //             webflowAddressCollectionId: addressCollectionId,
+  //             webflowMenuCollectionId: menuCollectionId,
+  //             webflowCategoryCollectionId: categoryCollectionId,
+  //             webflowProductCollectionId: productCollectionId,
+  //             webflowModifierCollectionId: modifierCollectionId,
+  //             webflowVariantCollectionId: variantCollectionId,
+  //             webflowOptionCollectionId: optionCollectionId,
+  //             apiKey: encryptedkey,
+  //             userId: userId,
+  //           },
+  //         });
+  //         if (siteResult) {
+  //           console.log('siteDetails', siteResult);
+  //           //fetching gotab location data
+  //           const goTabLocationData = await getLocation(payload.locationUuid);
+  //           if (!goTabLocationData.error) {
+  //             //Adding Address details to webflow
+  //             const addAddressToWebflow = await AddressService.create(
+  //               payload.apiKey,
+  //               addressCollectionId,
+  //               goTabLocationData.data.address,
+  //               siteResult.id,
+  //             );
+  //             if (!addAddressToWebflow.error) {
+  //               console.log('address', addAddressToWebflow);
+  //               //adding location details to webflow
+  //               const addLocationToWebflow = await LocationService.create(
+  //                 payload.apiKey,
+  //                 locationCollectionId,
+  //                 goTabLocationData.data,
+  //                 addAddressToWebflow.data.data.id,
+  //                 siteResult.id,
+  //               );
+  //               if (!addLocationToWebflow.error) {
+  //                 console.log('location', addLocationToWebflow);
+  //                 //fetching gotab data
+  //                 const filteredOptionsArray = await getOptions(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 const filteredVariantsArray = await getVariants(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 const filteredModifiersArray = await getModifiers(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 const filteredProductsArray = await getProducts(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 const filteredCategoriesArray = await getCategories(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 const filteredMenusArray = await getMenus(
+  //                   goTabLocationData.data.locationId,
+  //                 );
+  //                 if (
+  //                   !filteredProductsArray.error &&
+  //                   !filteredCategoriesArray.error &&
+  //                   !filteredMenusArray.error &&
+  //                   !filteredModifiersArray.error &&
+  //                   !filteredOptionsArray.error
+  //                 ) {
+  //                   // importData(
+  //                   //   filteredOptionsArray.data,
+  //                   //   filteredModifiersArray.data,
+  //                   //   filteredProductsArray.data,
+  //                   //   optionCollectionId,
+  //                   //   modifierCollectionId,
+  //                   //   productCollectionId,
+  //                   //   payload.apiKey,
+  //                   //   siteResult.id,
+  //                   // );
+
+  //                   let promise1 = new Promise((resolve: any, reject: any) => {
+  //                     if (filteredOptionsArray.data.length == 0) {
+  //                       resolve();
+  //                     }
+  //                     console.log('options', filteredOptionsArray.data.length);
+  //                     filteredOptionsArray.data.every(
+  //                       async (ele: any, index: any, array: any) => {
+  //                         setInterval(async () => {
+  //                           await prisma.user.findMany();
+  //                         }, 1000);
+  //                         setTimeout(async () => {
+  //                           (async () => await prisma.user.findMany())();
+  //                           const addOptionsToWebflow =
+  //                             await OptionService.create(
+  //                               payload.apiKey as string,
+  //                               optionCollectionId,
+  //                               ele,
+  //                               siteResult.id,
+  //                             );
+  //                           if (!addOptionsToWebflow.error) {
+  //                             if (index === array.length - 1) {
+  //                               resolve();
+  //                             }
+  //                           } else {
+  //                             reject(addOptionsToWebflow);
+  //                             return false;
+  //                           }
+  //                         }, index * 1000);
+  //                       },
+  //                     );
+  //                   });
+  //                   promise1
+  //                     .then(async () => {
+  //                       let promise2 = new Promise(
+  //                         (resolve: any, reject: any) => {
+  //                           if (filteredModifiersArray.data.length == 0) {
+  //                             resolve();
+  //                           }
+  //                           console.log(
+  //                             'modifiers',
+  //                             filteredModifiersArray.data.length,
+  //                           );
+  //                           filteredModifiersArray.data.forEach(
+  //                             async (ele: any, index: any, array: any) => {
+  //                               setInterval(async () => {
+  //                                 await prisma.user.findMany();
+  //                               }, 1000);
+  //                               setTimeout(async () => {
+  //                                 const addModifiersToWebflow =
+  //                                   await ModifierService.create(
+  //                                     payload.apiKey as string,
+  //                                     modifierCollectionId,
+  //                                     ele,
+  //                                     siteResult.id,
+  //                                   );
+  //                                 if (!addModifiersToWebflow.error) {
+  //                                   if (index === array.length - 1) {
+  //                                     resolve();
+  //                                   }
+  //                                 } else {
+  //                                   reject(addModifiersToWebflow);
+  //                                   return false;
+  //                                 }
+  //                               }, index * 1000);
+  //                             },
+  //                           );
+  //                         },
+  //                       );
+  //                       promise2
+  //                         .then(async () => {
+  //                           let promise3 = new Promise(
+  //                             (resolve: any, reject: any) => {
+  //                               if (filteredVariantsArray.data.length == 0) {
+  //                                 resolve();
+  //                               }
+  //                               console.log(
+  //                                 'variants',
+  //                                 filteredVariantsArray.data.length,
+  //                               );
+  //                               filteredVariantsArray.data.forEach(
+  //                                 async (ele: any, index: any, array: any) => {
+  //                                   setInterval(async () => {
+  //                                     await prisma.user.findMany();
+  //                                   }, 1000);
+  //                                   setTimeout(async () => {
+  //                                     const addVariantsToWebflow =
+  //                                       await varientService.create(
+  //                                         payload.apiKey as string,
+  //                                         variantCollectionId,
+  //                                         ele,
+  //                                         siteResult.id,
+  //                                       );
+  //                                     if (!addVariantsToWebflow.error) {
+  //                                       if (index === array.length - 1) {
+  //                                         resolve();
+  //                                       }
+  //                                     } else {
+  //                                       reject(addVariantsToWebflow);
+  //                                       return false;
+  //                                     }
+  //                                   }, index * 1000);
+  //                                 },
+  //                               );
+  //                             },
+  //                           );
+  //                           promise3
+  //                             .then(async () => {
+  //                               let promise4 = new Promise(
+  //                                 (resolve: any, reject: any) => {
+  //                                   if (
+  //                                     filteredProductsArray.data.length == 0
+  //                                   ) {
+  //                                     resolve();
+  //                                   }
+  //                                   console.log(
+  //                                     'products',
+  //                                     filteredProductsArray.data.length,
+  //                                   );
+  //                                   filteredProductsArray.data.forEach(
+  //                                     async (
+  //                                       ele: any,
+  //                                       index: any,
+  //                                       array: any,
+  //                                     ) => {
+  //                                       setInterval(async () => {
+  //                                         await prisma.user.findMany();
+  //                                       }, 1000);
+  //                                       setTimeout(async () => {
+  //                                         const addProductsToWebflow =
+  //                                           await ProductService.create(
+  //                                             payload.apiKey as string,
+  //                                             productCollectionId,
+  //                                             ele,
+  //                                             siteResult.id,
+  //                                           );
+  //                                         if (!addProductsToWebflow.error) {
+  //                                           if (index === array.length - 1) {
+  //                                             resolve();
+  //                                           }
+  //                                         } else {
+  //                                           reject(addProductsToWebflow);
+  //                                           return false;
+  //                                         }
+  //                                       }, index * 1000);
+  //                                     },
+  //                                   );
+  //                                 },
+  //                               );
+  //                               promise4
+  //                                 .then(() => {
+  //                                   let promise5 = new Promise(
+  //                                     (resolve: any, reject: any) => {
+  //                                       if (
+  //                                         filteredCategoriesArray.data.length ==
+  //                                         0
+  //                                       ) {
+  //                                         resolve();
+  //                                       }
+  //                                       console.log(
+  //                                         'categories',
+  //                                         filteredCategoriesArray.data.length,
+  //                                       );
+  //                                       filteredCategoriesArray.data.forEach(
+  //                                         async (
+  //                                           ele: any,
+  //                                           index: any,
+  //                                           array: any,
+  //                                         ) => {
+  //                                           setTimeout(async () => {
+  //                                             const addCategoriesToWebflow =
+  //                                               await CategoryService.create(
+  //                                                 payload.apiKey as string,
+  //                                                 categoryCollectionId,
+  //                                                 ele,
+  //                                                 siteResult.id,
+  //                                               );
+  //                                             if (
+  //                                               !addCategoriesToWebflow?.error
+  //                                             ) {
+  //                                               if (
+  //                                                 index ===
+  //                                                 array.length - 1
+  //                                               ) {
+  //                                                 resolve();
+  //                                               }
+  //                                             } else {
+  //                                               reject(addCategoriesToWebflow);
+  //                                               return false;
+  //                                             }
+  //                                           }, index * 1000);
+  //                                         },
+  //                                       );
+  //                                     },
+  //                                   );
+  //                                   promise5
+  //                                     .then(() => {
+  //                                       let promise6 = new Promise(
+  //                                         (resolve: any, reject: any) => {
+  //                                           if (
+  //                                             filteredMenusArray.data.length ==
+  //                                             0
+  //                                           ) {
+  //                                             resolve();
+  //                                           }
+  //                                           console.log(
+  //                                             'menus',
+  //                                             filteredMenusArray.data.length,
+  //                                           );
+  //                                           filteredMenusArray.data.forEach(
+  //                                             async (
+  //                                               ele: any,
+  //                                               index: any,
+  //                                               array: any,
+  //                                             ) => {
+  //                                               setTimeout(async () => {
+  //                                                 const addMenusToWebflow =
+  //                                                   await MenuService.create(
+  //                                                     payload.apiKey as string,
+  //                                                     menuCollectionId,
+  //                                                     ele,
+  //                                                     siteResult.id,
+  //                                                   );
+  //                                                 if (
+  //                                                   !addMenusToWebflow?.error
+  //                                                 ) {
+  //                                                   if (
+  //                                                     index ===
+  //                                                     array.length - 1
+  //                                                   ) {
+  //                                                     resolve();
+  //                                                   }
+  //                                                 } else {
+  //                                                   reject(addMenusToWebflow);
+  //                                                   return false;
+  //                                                 }
+  //                                               }, index * 1000);
+  //                                             },
+  //                                           );
+  //                                         },
+  //                                       );
+  //                                       promise6
+  //                                         .then((data) => {
+  //                                           return data;
+  //                                         })
+  //                                         .catch(async (error) => {
+  //                                           console.log('menus-catch', error);
+  //                                           const errorMsg = `${error?.errors?.response.data.message} while adding Menu`;
+  //                                           await ErrorLog.logErrorToDb(
+  //                                             error?.errors?.response.data.code,
+  //                                             errorMsg,
+  //                                             siteResult.id,
+  //                                             payload,
+  //                                             error?.errors?.response.config,
+  //                                           );
+  //                                           return getErrorResponse(
+  //                                             errorMsg,
+  //                                             error?.errors?.response,
+  //                                           );
+  //                                         });
+  //                                     })
+  //                                     .catch(async (error) => {
+  //                                       console.log('category-catch', error);
+  //                                       const errorMsg = `${error?.errors?.response.data.message} while adding categories`;
+  //                                       await ErrorLog.logErrorToDb(
+  //                                         error?.errors?.response.data.code,
+  //                                         errorMsg,
+  //                                         siteResult.id,
+  //                                         payload,
+  //                                         error?.errors?.response.config,
+  //                                       );
+  //                                       return getErrorResponse(
+  //                                         errorMsg,
+  //                                         error?.errors?.response,
+  //                                       );
+  //                                     });
+  //                                 })
+  //                                 .catch(async (error) => {
+  //                                   console.log('products-catch', error);
+  //                                   const errorMsg = `${error?.errors?.response.data.message} while adding products`;
+  //                                   await ErrorLog.logErrorToDb(
+  //                                     error?.errors?.response.data.code,
+  //                                     errorMsg,
+  //                                     siteResult.id,
+  //                                     payload,
+  //                                     error?.errors?.response.config,
+  //                                   );
+  //                                   return getErrorResponse(
+  //                                     errorMsg,
+  //                                     error?.errors?.response,
+  //                                   );
+  //                                 });
+  //                             })
+  //                             .catch(async (error) => {
+  //                               console.log('variants-catch', error);
+  //                               const errorMsg = `${error?.errors?.response.data.message} while adding variants`;
+  //                               await ErrorLog.logErrorToDb(
+  //                                 error?.errors?.response.data.code,
+  //                                 errorMsg,
+  //                                 siteResult.id,
+  //                                 payload,
+  //                                 error?.errors?.response.config,
+  //                               );
+  //                               return getErrorResponse(
+  //                                 errorMsg,
+  //                                 error?.errors?.response,
+  //                               );
+  //                             });
+  //                         })
+  //                         .catch(async (error) => {
+  //                           console.log('modifiers-catch', error);
+  //                           const errorMsg = `${error?.errors?.response.data.message} while adding modifiers`;
+  //                           await ErrorLog.logErrorToDb(
+  //                             error?.errors?.response.data.code,
+  //                             errorMsg,
+  //                             siteResult.id,
+  //                             payload,
+  //                             error?.errors?.response.config,
+  //                           );
+  //                           return getErrorResponse(
+  //                             errorMsg,
+  //                             error?.errors?.response,
+  //                           );
+  //                         });
+  //                     })
+  //                     .catch(async (error) => {
+  //                       console.log('options-catch', error);
+  //                       const errorMsg = ` while adding options, ${error?.errors?.response.data.message}`;
+  //                       await ErrorLog.logErrorToDb(
+  //                         error?.errors?.response.data.code,
+  //                         errorMsg,
+  //                         siteResult.id,
+  //                         payload,
+  //                         error?.errors?.config,
+  //                       );
+  //                       return getErrorResponse(
+  //                         errorMsg,
+  //                         error?.errors?.response,
+  //                       );
+  //                     });
+  //                   return getSuccessResponse('site Added');
+  //                 } else {
+  //                   console.log('schemamismatch-catch');
+  //                   await ErrorLog.logErrorToDb(
+  //                     'Schema Mismatch/property not found',
+  //                     'Schema Mismatch/property not found',
+  //                     siteResult.id,
+  //                     payload,
+  //                   );
+  //                   return getErrorResponse(
+  //                     'Error may be occured due to server error or schema mismatch or property not found',
+  //                   );
+  //                 }
+  //               } else {
+  //                 console.log('location-error', addLocationToWebflow);
+  //                 const errMsg = `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`;
+  //                 await ErrorLog.logErrorToDb(
+  //                   addLocationToWebflow.errors.response.data.code,
+  //                   errMsg,
+  //                   siteResult.id,
+  //                   payload,
+  //                   addLocationToWebflow.errors.config,
+  //                 );
+  //                 return getErrorResponse(errMsg, addLocationToWebflow);
+  //               }
+  //             } else {
+  //               console.log('address-error', addAddressToWebflow);
+  //               const errMsg = `Error in inserting Address, ${addAddressToWebflow.errors.response.data.message}`;
+  //               await ErrorLog.logErrorToDb(
+  //                 addAddressToWebflow.errors.response.data.code,
+  //                 errMsg,
+  //                 siteResult.id,
+  //                 payload,
+  //                 addAddressToWebflow.errors.config,
+  //               );
+  //               return getErrorResponse(errMsg, addAddressToWebflow);
+  //             }
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       console.log('afetch-collections-error', collections);
+  //       const errMsg = `Error fetching Collections from webflow, ${collections.errors.response.data.message}`;
+  //       await ErrorLog.logErrorToDb(
+  //         collections.errors.response.data.code,
+  //         errMsg,
+  //         parseInt(payload.siteId, 10),
+  //         payload,
+  //       );
+  //       return getErrorResponse(errMsg, collections);
+  //     }
+  //   } catch (error) {
+  //     logger.log(error, undefined, 'error');
+  //     return getErrorResponse();
+  //   }
+  // };
   public static createSite = async (
     payload: AddSiteRequest,
     userId: number,
   ) => {
     try {
-      // testing whether the logged in user existed
+      // Check if the user exists
       const user = await UserService.getUserById(userId);
 
       if (!user) {
         return getErrorResponse('Invalid userId');
       }
-      // encrypting the apiKey
-      const encryptedkey = EncryptionClient.encryptData(payload.apiKey);
-      //a helper function is created to call all the collections of a site
+
+      // Encrypt the apiKey
+      const encryptedKey = EncryptionClient.encryptData(payload.apiKey);
+
+      // Fetch collections for the site
       const collections = await getCollectionsBySiteId(
         payload.siteId,
         payload.apiKey,
       );
 
       if (!collections.error) {
-        // filtering the collections based on collectionname
-        const locationCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Locations',
-        )[0].id;
-        const addressCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Addresses',
-        )[0].id;
-        const menuCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Menus',
-        )[0].id;
-        const categoryCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Categories',
-        )[0].id;
-        const productCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Products',
-        )[0].id;
-        const modifierCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Modifiers',
-        )[0].id;
-        const variantCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Variants',
-        )[0].id;
-        const optionCollectionId = collections.data.filter(
-          (ele: any) => ele.displayName === 'Options',
-        )[0].id;
+        // Extract collection ids
+        const locationCollectionId = findCollectionId(
+          collections.data,
+          'Locations',
+        );
+        const addressCollectionId = findCollectionId(
+          collections.data,
+          'Addresses',
+        );
+        const menuCollectionId = findCollectionId(collections.data, 'Menus');
+        const categoryCollectionId = findCollectionId(
+          collections.data,
+          'Categories',
+        );
+        const productCollectionId = findCollectionId(
+          collections.data,
+          'Products',
+        );
+        const modifierCollectionId = findCollectionId(
+          collections.data,
+          'Modifiers',
+        );
+        const variantCollectionId = findCollectionId(
+          collections.data,
+          'Variants',
+        );
+        const optionCollectionId = findCollectionId(
+          collections.data,
+          'Options',
+        );
 
+        // Check if site or location already exists
         const siteExist = await prisma.site.findUnique({
           where: {
             webflowSiteId: payload.siteId,
@@ -109,6 +686,7 @@ export default class SiteService {
             locationUuid: payload.locationUuid,
           },
         });
+
         if (siteExist || locationExist) {
           if (siteExist && locationExist) {
             const isSiteDeleted = await prisma.site.findUnique({
@@ -126,25 +704,26 @@ export default class SiteService {
                 },
               });
               return getSuccessResponse(
-                'Site is Enabled Again.Use Repoll to poll the latest data',
+                'Site is enabled again. Use Repoll to poll the latest data.',
               );
             } else {
               return getErrorResponse(
-                'Site Already Exists,Please try Repolling',
+                'Site already exists. Please try Repolling.',
               );
             }
           }
           if (siteExist) {
             return getErrorResponse(
-              `Site ${siteExist.webflowSiteId} Already mapped to Location ${siteExist.locationUuid}.Please use the same Details to enable it again`,
+              `Site ${siteExist.webflowSiteId} already mapped to Location ${siteExist.locationUuid}. Please use the same details to enable it again.`,
             );
           }
           if (locationExist) {
             return getErrorResponse(
-              `Location ${locationExist.locationUuid} Already mapped to Site ${locationExist.webflowSiteId} Please use the same Details to enable it again`,
+              `Location ${locationExist.locationUuid} already mapped to Site ${locationExist.webflowSiteId}. Please use the same details to enable it again.`,
             );
           }
         } else {
+          // Create new site
           const siteResult = await prisma.site.create({
             data: {
               webflowSiteId: payload.siteId,
@@ -158,25 +737,30 @@ export default class SiteService {
               webflowModifierCollectionId: modifierCollectionId,
               webflowVariantCollectionId: variantCollectionId,
               webflowOptionCollectionId: optionCollectionId,
-              apiKey: encryptedkey,
+              apiKey: encryptedKey,
               userId: userId,
             },
           });
+
           if (siteResult) {
-            console.log('siteDetails', siteResult);
-            //fetching gotab location data
+            console.log('Site details:', siteResult);
+
+            // Fetch location data from GoTab
             const goTabLocationData = await getLocation(payload.locationUuid);
+
             if (!goTabLocationData.error) {
-              //Adding Address details to webflow
+              // Add address to webflow
               const addAddressToWebflow = await AddressService.create(
                 payload.apiKey,
                 addressCollectionId,
                 goTabLocationData.data.address,
                 siteResult.id,
               );
+
               if (!addAddressToWebflow.error) {
-                console.log('address', addAddressToWebflow);
-                //adding location details to webflow
+                console.log('Address:', addAddressToWebflow);
+
+                // Add location to webflow
                 const addLocationToWebflow = await LocationService.create(
                   payload.apiKey,
                   locationCollectionId,
@@ -184,427 +768,118 @@ export default class SiteService {
                   addAddressToWebflow.data.data.id,
                   siteResult.id,
                 );
+
                 if (!addLocationToWebflow.error) {
-                  console.log('location', addLocationToWebflow);
-                  //fetching gotab data
-                  const filteredOptionsArray = await getOptions(
-                    goTabLocationData.data.locationId,
-                  );
-                  const filteredVariantsArray = await getVariants(
-                    goTabLocationData.data.locationId,
-                  );
-                  const filteredModifiersArray = await getModifiers(
-                    goTabLocationData.data.locationId,
-                  );
-                  const filteredProductsArray = await getProducts(
-                    goTabLocationData.data.locationId,
-                  );
-                  const filteredCategoriesArray = await getCategories(
-                    goTabLocationData.data.locationId,
-                  );
-                  const filteredMenusArray = await getMenus(
-                    goTabLocationData.data.locationId,
-                  );
-                  if (
-                    !filteredProductsArray.error &&
-                    !filteredCategoriesArray.error &&
-                    !filteredMenusArray.error &&
-                    !filteredModifiersArray.error &&
-                    !filteredOptionsArray.error
-                  ) {
-                    importData(
-                      filteredOptionsArray.data,
-                      filteredModifiersArray.data,
-                      filteredProductsArray.data,
+                  console.log('Location:', addLocationToWebflow);
+
+                  // Fetch options, variants, modifiers, products, categories, and menus
+                  const [
+                    optionsRes,
+                    modifiersRes,
+                    variantsRes,
+                    productsRes,
+                    categoriesRes,
+                    menusRes,
+                  ] = await Promise.all([
+                    getAndSaveData(
+                      getOptions,
+                      goTabLocationData.data.locationId,
                       optionCollectionId,
-                      modifierCollectionId,
-                      productCollectionId,
+                      OptionService,
                       payload.apiKey,
                       siteResult.id,
-                    );
-
-                    //
-                    //   let promise1 = new Promise((resolve: any, reject: any) => {
-                    //     if (filteredOptionsArray.data.length == 0) {
-                    //       resolve();
-                    //     }
-                    //     console.log('options', filteredOptionsArray.data.length);
-                    //     filteredOptionsArray.data.every(
-                    //       async (ele: any, index: any, array: any) => {
-                    //         setInterval(async () => {
-                    //           await prisma.user.findMany();
-                    //         }, 1000);
-                    //         setTimeout(async () => {
-                    //           (async () => await prisma.user.findMany())();
-                    //           const addOptionsToWebflow =
-                    //             await OptionService.create(
-                    //               payload.apiKey as string,
-                    //               optionCollectionId,
-                    //               ele,
-                    //               siteResult.id,
-                    //             );
-                    //           if (!addOptionsToWebflow.error) {
-                    //             if (index === array.length - 1) {
-                    //               resolve();
-                    //             }
-                    //           } else {
-                    //             reject(addOptionsToWebflow);
-                    //             return false;
-                    //           }
-                    //         }, index * 1000);
-                    //       },
-                    //     );
-                    //   });
-                    //   promise1
-                    //     .then(async () => {
-                    //       let promise2 = new Promise(
-                    //         (resolve: any, reject: any) => {
-                    //           if (filteredModifiersArray.data.length == 0) {
-                    //             resolve();
-                    //           }
-                    //           console.log(
-                    //             'modifiers',
-                    //             filteredModifiersArray.data.length,
-                    //           );
-                    //           filteredModifiersArray.data.forEach(
-                    //             async (ele: any, index: any, array: any) => {
-                    //               setInterval(async () => {
-                    //                 await prisma.user.findMany();
-                    //               }, 1000);
-                    //               setTimeout(async () => {
-                    //                 const addModifiersToWebflow =
-                    //                   await ModifierService.create(
-                    //                     payload.apiKey as string,
-                    //                     modifierCollectionId,
-                    //                     ele,
-                    //                     siteResult.id,
-                    //                   );
-                    //                 if (!addModifiersToWebflow.error) {
-                    //                   if (index === array.length - 1) {
-                    //                     resolve();
-                    //                   }
-                    //                 } else {
-                    //                   reject(addModifiersToWebflow);
-                    //                   return false;
-                    //                 }
-                    //               }, index * 1000);
-                    //             },
-                    //           );
-                    //         },
-                    //       );
-                    //       promise2
-                    //         .then(async () => {
-                    //           let promise3 = new Promise(
-                    //             (resolve: any, reject: any) => {
-                    //               if (filteredVariantsArray.data.length == 0) {
-                    //                 resolve();
-                    //               }
-                    //               console.log(
-                    //                 'variants',
-                    //                 filteredVariantsArray.data.length,
-                    //               );
-                    //               filteredVariantsArray.data.forEach(
-                    //                 async (ele: any, index: any, array: any) => {
-                    //                   setInterval(async () => {
-                    //                     await prisma.user.findMany();
-                    //                   }, 1000);
-                    //                   setTimeout(async () => {
-                    //                     const addVariantsToWebflow =
-                    //                       await varientService.create(
-                    //                         payload.apiKey as string,
-                    //                         variantCollectionId,
-                    //                         ele,
-                    //                         siteResult.id,
-                    //                       );
-                    //                     if (!addVariantsToWebflow.error) {
-                    //                       if (index === array.length - 1) {
-                    //                         resolve();
-                    //                       }
-                    //                     } else {
-                    //                       reject(addVariantsToWebflow);
-                    //                       return false;
-                    //                     }
-                    //                   }, index * 1000);
-                    //                 },
-                    //               );
-                    //             },
-                    //           );
-                    //           promise3
-                    //             .then(async () => {
-                    //               let promise4 = new Promise(
-                    //                 (resolve: any, reject: any) => {
-                    //                   if (
-                    //                     filteredProductsArray.data.length == 0
-                    //                   ) {
-                    //                     resolve();
-                    //                   }
-                    //                   console.log(
-                    //                     'products',
-                    //                     filteredProductsArray.data.length,
-                    //                   );
-                    //                   filteredProductsArray.data.forEach(
-                    //                     async (
-                    //                       ele: any,
-                    //                       index: any,
-                    //                       array: any,
-                    //                     ) => {
-                    //                       setInterval(async () => {
-                    //                         await prisma.user.findMany();
-                    //                       }, 1000);
-                    //                       setTimeout(async () => {
-                    //                         const addProductsToWebflow =
-                    //                           await ProductService.create(
-                    //                             payload.apiKey as string,
-                    //                             productCollectionId,
-                    //                             ele,
-                    //                             siteResult.id,
-                    //                           );
-                    //                         if (!addProductsToWebflow.error) {
-                    //                           if (index === array.length - 1) {
-                    //                             resolve();
-                    //                           }
-                    //                         } else {
-                    //                           reject(addProductsToWebflow);
-                    //                           return false;
-                    //                         }
-                    //                       }, index * 1000);
-                    //                     },
-                    //                   );
-                    //                 },
-                    //               );
-                    //               promise4
-                    //                 .then(() => {
-                    //                   let promise5 = new Promise(
-                    //                     (resolve: any, reject: any) => {
-                    //                       if (
-                    //                         filteredCategoriesArray.data.length ==
-                    //                         0
-                    //                       ) {
-                    //                         resolve();
-                    //                       }
-                    //                       console.log(
-                    //                         'categories',
-                    //                         filteredCategoriesArray.data.length,
-                    //                       );
-                    //                       filteredCategoriesArray.data.forEach(
-                    //                         async (
-                    //                           ele: any,
-                    //                           index: any,
-                    //                           array: any,
-                    //                         ) => {
-                    //                           setTimeout(async () => {
-                    //                             const addCategoriesToWebflow =
-                    //                               await CategoryService.create(
-                    //                                 payload.apiKey as string,
-                    //                                 categoryCollectionId,
-                    //                                 ele,
-                    //                                 siteResult.id,
-                    //                               );
-                    //                             if (
-                    //                               !addCategoriesToWebflow?.error
-                    //                             ) {
-                    //                               if (
-                    //                                 index ===
-                    //                                 array.length - 1
-                    //                               ) {
-                    //                                 resolve();
-                    //                               }
-                    //                             } else {
-                    //                               reject(addCategoriesToWebflow);
-                    //                               return false;
-                    //                             }
-                    //                           }, index * 1000);
-                    //                         },
-                    //                       );
-                    //                     },
-                    //                   );
-                    //                   promise5
-                    //                     .then(() => {
-                    //                       let promise6 = new Promise(
-                    //                         (resolve: any, reject: any) => {
-                    //                           if (
-                    //                             filteredMenusArray.data.length ==
-                    //                             0
-                    //                           ) {
-                    //                             resolve();
-                    //                           }
-                    //                           console.log(
-                    //                             'menus',
-                    //                             filteredMenusArray.data.length,
-                    //                           );
-                    //                           filteredMenusArray.data.forEach(
-                    //                             async (
-                    //                               ele: any,
-                    //                               index: any,
-                    //                               array: any,
-                    //                             ) => {
-                    //                               setTimeout(async () => {
-                    //                                 const addMenusToWebflow =
-                    //                                   await MenuService.create(
-                    //                                     payload.apiKey as string,
-                    //                                     menuCollectionId,
-                    //                                     ele,
-                    //                                     siteResult.id,
-                    //                                   );
-                    //                                 if (
-                    //                                   !addMenusToWebflow?.error
-                    //                                 ) {
-                    //                                   if (
-                    //                                     index ===
-                    //                                     array.length - 1
-                    //                                   ) {
-                    //                                     resolve();
-                    //                                   }
-                    //                                 } else {
-                    //                                   reject(addMenusToWebflow);
-                    //                                   return false;
-                    //                                 }
-                    //                               }, index * 1000);
-                    //                             },
-                    //                           );
-                    //                         },
-                    //                       );
-                    //                       promise6
-                    //                         .then((data) => {
-                    //                           return data;
-                    //                         })
-                    //                         .catch(async (error) => {
-                    //                           console.log('menus-catch', error);
-                    //                           const errorMsg = `${error?.errors?.response.data.message} while adding Menu`;
-                    //                           await ErrorLog.logErrorToDb(
-                    //                             error?.errors?.response.data.code,
-                    //                             errorMsg,
-                    //                             siteResult.id,
-                    //                             payload,
-                    //                             error?.errors?.response.config,
-                    //                           );
-                    //                           return getErrorResponse(
-                    //                             errorMsg,
-                    //                             error?.errors?.response,
-                    //                           );
-                    //                         });
-                    //                     })
-                    //                     .catch(async (error) => {
-                    //                       console.log('category-catch', error);
-                    //                       const errorMsg = `${error?.errors?.response.data.message} while adding categories`;
-                    //                       await ErrorLog.logErrorToDb(
-                    //                         error?.errors?.response.data.code,
-                    //                         errorMsg,
-                    //                         siteResult.id,
-                    //                         payload,
-                    //                         error?.errors?.response.config,
-                    //                       );
-                    //                       return getErrorResponse(
-                    //                         errorMsg,
-                    //                         error?.errors?.response,
-                    //                       );
-                    //                     });
-                    //                 })
-                    //                 .catch(async (error) => {
-                    //                   console.log('products-catch', error);
-                    //                   const errorMsg = `${error?.errors?.response.data.message} while adding products`;
-                    //                   await ErrorLog.logErrorToDb(
-                    //                     error?.errors?.response.data.code,
-                    //                     errorMsg,
-                    //                     siteResult.id,
-                    //                     payload,
-                    //                     error?.errors?.response.config,
-                    //                   );
-                    //                   return getErrorResponse(
-                    //                     errorMsg,
-                    //                     error?.errors?.response,
-                    //                   );
-                    //                 });
-                    //             })
-                    //             .catch(async (error) => {
-                    //               console.log('variants-catch', error);
-                    //               const errorMsg = `${error?.errors?.response.data.message} while adding variants`;
-                    //               await ErrorLog.logErrorToDb(
-                    //                 error?.errors?.response.data.code,
-                    //                 errorMsg,
-                    //                 siteResult.id,
-                    //                 payload,
-                    //                 error?.errors?.response.config,
-                    //               );
-                    //               return getErrorResponse(
-                    //                 errorMsg,
-                    //                 error?.errors?.response,
-                    //               );
-                    //             });
-                    //         })
-                    //         .catch(async (error) => {
-                    //           console.log('modifiers-catch', error);
-                    //           const errorMsg = `${error?.errors?.response.data.message} while adding modifiers`;
-                    //           await ErrorLog.logErrorToDb(
-                    //             error?.errors?.response.data.code,
-                    //             errorMsg,
-                    //             siteResult.id,
-                    //             payload,
-                    //             error?.errors?.response.config,
-                    //           );
-                    //           return getErrorResponse(
-                    //             errorMsg,
-                    //             error?.errors?.response,
-                    //           );
-                    //         });
-                    //     })
-                    //     .catch(async (error) => {
-                    //       console.log('options-catch', error);
-                    //       const errorMsg = ` while adding options, ${error?.errors?.response.data.message}`;
-                    //       await ErrorLog.logErrorToDb(
-                    //         error?.errors?.response.data.code,
-                    //         errorMsg,
-                    //         siteResult.id,
-                    //         payload,
-                    //         error?.errors?.config,
-                    //       );
-                    //       return getErrorResponse(
-                    //         errorMsg,
-                    //         error?.errors?.response,
-                    //       );
-                    //     });
-                    return getSuccessResponse('site Added');
-                  } else {
-                    console.log('schemamismatch-catch');
-                    await ErrorLog.logErrorToDb(
-                      'Schema Mismatch/property not found',
-                      'Schema Mismatch/property not found',
+                    ),
+                    getAndSaveData(
+                      getModifiers,
+                      goTabLocationData.data.locationId,
+                      modifierCollectionId,
+                      ModifierService,
+                      payload.apiKey,
                       siteResult.id,
-                      payload,
-                    );
+                    ),
+                    getAndSaveData(
+                      getVariants,
+                      goTabLocationData.data.locationId,
+                      variantCollectionId,
+                      varientService,
+                      payload.apiKey,
+                      siteResult.id,
+                    ),
+                    getAndSaveData(
+                      getProducts,
+                      goTabLocationData.data.locationId,
+                      productCollectionId,
+                      ProductService,
+                      payload.apiKey,
+                      siteResult.id,
+                    ),
+                    getAndSaveData(
+                      getCategories,
+                      goTabLocationData.data.locationId,
+                      categoryCollectionId,
+                      CategoryService,
+                      payload.apiKey,
+                      siteResult.id,
+                    ),
+                    getAndSaveData(
+                      getMenus,
+                      goTabLocationData.data.locationId,
+                      menuCollectionId,
+                      MenuService,
+                      payload.apiKey,
+                      siteResult.id,
+                    ),
+                  ]);
+
+                  if (
+                    optionsRes &&
+                    modifiersRes &&
+                    variantsRes &&
+                    productsRes &&
+                    categoriesRes &&
+                    menusRes
+                  ) {
+                    return getSuccessResponse('Site added successfully.');
+                  } else {
+                    // await ErrorLog.logErrorToDb(
+                    //   'Schema Mismatch/property not found',
+                    //   'Schema Mismatch/property not found',
+                    //   siteResult.id,
+                    //   payload,
+                    // );
                     return getErrorResponse(
-                      'Error may be occured due to server error or schema mismatch or property not found',
+                      'Error occurred due to server error',
                     );
                   }
                 } else {
-                  console.log('location-error', addLocationToWebflow);
                   const errMsg = `Error in inserting Location, ${addLocationToWebflow.errors.response.data.message}`;
-                  await ErrorLog.logErrorToDb(
-                    addLocationToWebflow.errors.response.data.code,
-                    errMsg,
-                    siteResult.id,
-                    payload,
-                    addLocationToWebflow.errors.config,
-                  );
-                  return getErrorResponse(errMsg, addLocationToWebflow);
+                  // await ErrorLog.logErrorToDb(
+                  //   addLocationToWebflow.errors.response.data.code,
+                  //   errMsg,
+                  //   siteResult.id,
+                  //   payload,
+                  //   goTabLocationData.errors.config,
+                  // );
                 }
               } else {
-                console.log('address-error', addAddressToWebflow);
                 const errMsg = `Error in inserting Address, ${addAddressToWebflow.errors.response.data.message}`;
-                await ErrorLog.logErrorToDb(
-                  addAddressToWebflow.errors.response.data.code,
-                  errMsg,
-                  siteResult.id,
-                  payload,
-                  addAddressToWebflow.errors.config,
-                );
-                return getErrorResponse(errMsg, addAddressToWebflow);
+                // await ErrorLog.logErrorToDb(
+                //   addAddressToWebflow.errors.response.data.code,
+                //   errMsg,
+                //   siteResult.id,
+                //   payload,
+                //   goTabLocationData.errors.config,
+                // );
               }
+            } else {
+              const errMsg = `Error fetching location data, ${goTabLocationData.errors.response.data.message}`;
+              return getErrorResponse(errMsg);
             }
+          } else {
+            return getErrorResponse('Failed to create site.');
           }
         }
       } else {
-        console.log('afetch-collections-error', collections);
         const errMsg = `Error fetching Collections from webflow, ${collections.errors.response.data.message}`;
         await ErrorLog.logErrorToDb(
           collections.errors.response.data.code,
@@ -612,13 +887,20 @@ export default class SiteService {
           parseInt(payload.siteId, 10),
           payload,
         );
-        return getErrorResponse(errMsg, collections);
+        return getErrorResponse(errMsg);
       }
     } catch (error) {
-      logger.log(error, undefined, 'error');
-      return getErrorResponse();
+      console.error('Error in createSite:', error);
+      await ErrorLog.logErrorToDb(
+        'Internal Server Error',
+        error.message,
+        undefined,
+        payload,
+      );
+      return getErrorResponse('Internal Server Error');
     }
   };
+
   public static deleteSite = async (id: number, userId: number) => {
     try {
       const user = await UserService.getUserById(userId);
