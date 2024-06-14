@@ -60,15 +60,17 @@ export default class SiteService {
     console.log('entered modifiers');
     const modifiersData = await modifiers.every(
       async (ele: any, index: any, array: any) => {
-        const addModifiersToWebflow = await ModifierService.create(
-          apiKey as string,
-          modifierCollectionId,
-          ele,
-          siteId,
-        );
-        if (index === array.length - 1) {
-          return false;
-        }
+        setTimeout(async () => {
+          const addModifiersToWebflow = await ModifierService.create(
+            apiKey as string,
+            modifierCollectionId,
+            ele,
+            siteId,
+          );
+          if (index === array.length - 1) {
+            return false;
+          }
+        }, index * 1000);
       },
     );
     if (modifiersData) {
@@ -87,15 +89,17 @@ export default class SiteService {
     console.log('entered products');
     const productsData = await products.every(
       async (ele: any, index: any, array: any) => {
-        const addProductsToWebflow = await ProductService.create(
-          apiKey as string,
-          productCollectionId,
-          ele,
-          siteId,
-        );
-        if (index === array.length - 1) {
-          return false;
-        }
+        setTimeout(async () => {
+          const addProductsToWebflow = await ProductService.create(
+            apiKey as string,
+            productCollectionId,
+            ele,
+            siteId,
+          );
+          if (index === array.length - 1) {
+            return false;
+          }
+        }, index * 1000);
       },
     );
     if (productsData) {
@@ -266,15 +270,18 @@ export default class SiteService {
                     console.log('options', filteredOptionsArray.data.length);
                     const optionsData = filteredOptionsArray.data.every(
                       async (ele: any, index: any, array: any) => {
-                        const addOptionsToWebflow = await OptionService.create(
-                          payload.apiKey as string,
-                          optionCollectionId,
-                          ele,
-                          siteResult.id,
-                        );
-                        if (index === array.length - 1) {
-                          return false;
-                        }
+                        setTimeout(async () => {
+                          const addOptionsToWebflow =
+                            await OptionService.create(
+                              payload.apiKey as string,
+                              optionCollectionId,
+                              ele,
+                              siteResult.id,
+                            );
+                          if (index === array.length - 1) {
+                            return false;
+                          }
+                        }, index * 1000);
                       },
                     );
                     if (optionsData) {
