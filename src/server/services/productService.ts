@@ -21,6 +21,7 @@ export default class ProductService {
     productCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: any,
   ) => {
     try {
       const modifieruids = payload?.modifiers?.map((ele: any) => ele.uid);
@@ -45,6 +46,7 @@ export default class ProductService {
         displayprice: displayPrice,
         producttype: payload.productType,
         productuuid: payload.productUuid,
+        locationuuid: locationuuid,
         image: { url: payload?.images?.xl?.url },
         modifiers: modifiers,
         variants: variants,
@@ -87,7 +89,7 @@ export default class ProductService {
             where: { gotabVariantsku: ele, siteId: siteId },
           });
           if (middlewareVariant) {
-            prisma.variant.update({
+            await prisma.variant.update({
               where: { gotabVariantsku: ele, siteId: siteId },
               data: { gotabProductUuid: payload.productUuid },
             });
@@ -109,6 +111,7 @@ export default class ProductService {
     collectionId: string,
     payload: any,
     middlewareProduct: any,
+    locationuuid: any,
   ) => {
     try {
       const modifieruids = payload?.modifiers?.map((ele: any) => ele.uid);
@@ -134,6 +137,7 @@ export default class ProductService {
         displayprice: displayPrice,
         producttype: payload.productType,
         productuuid: payload.productUuid,
+        locationuuid: locationuuid,
         image: { url: payload?.images?.xl?.url },
         modifiers: modifiers,
         variants: variants,
@@ -263,10 +267,12 @@ export default class ProductService {
     productCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: any,
   ) => {
     try {
       const middlewareProduct = await prisma.product.findUnique({
         where: { productUuid: payload.productUuid, siteId: siteId },
+        include: { Site: true },
       });
       if (!middlewareProduct && payload.available) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);
@@ -275,6 +281,7 @@ export default class ProductService {
           productCollectionId,
           payload,
           siteId,
+          locationuuid,
         );
       } else {
         if (payload.available)
@@ -283,6 +290,7 @@ export default class ProductService {
             productCollectionId,
             payload,
             middlewareProduct,
+            locationuuid,
           );
         else return this.delete(apiKey, productCollectionId, payload, siteId);
       }

@@ -200,6 +200,7 @@ export default class OptionService {
     try {
       const middlewareOption = await prisma.option.findUnique({
         where: { gotabOptionuid: payload.uid, siteId: siteId },
+        include: { Site: true },
       });
       if (!middlewareOption && payload.enabled) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);

@@ -98,6 +98,7 @@ export default class AddressService {
     try {
       const middlewareAddress = await prisma.address.findUnique({
         where: { addressUuid: payload.addressUuid, siteId: siteId },
+        include: { Site: true },
       });
       if (!middlewareAddress) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);

@@ -56,7 +56,7 @@ export default class ModifierService {
             where: { gotabOptionuid: ele, siteId: siteId },
           });
           if (middlewareOption) {
-            prisma.option.update({
+            await prisma.option.update({
               where: { gotabOptionuid: ele, siteId: siteId },
               data: { gotabModifieruid: payload.uid },
             });
@@ -288,6 +288,7 @@ export default class ModifierService {
     try {
       const middlewareModifier = await prisma.modifier.findUnique({
         where: { gotabModifieruid: payload.uid },
+        include: { Site: true },
       });
       if (!middlewareModifier && payload.enabled) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);

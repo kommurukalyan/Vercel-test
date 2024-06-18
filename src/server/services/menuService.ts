@@ -15,6 +15,7 @@ export default class MenuService {
     menuCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: string,
   ) => {
     try {
       const categoryNames = payload.menuCategoriesList.map(
@@ -30,6 +31,7 @@ export default class MenuService {
         available: payload.available,
         'menu-uuid': payload.menuUuid,
         menuid: Number(payload.menuId),
+        locationuuid: locationuuid,
         menuheader: payload.menuHeader,
         menufooter: payload.menuFooter,
         categories: categories,
@@ -82,6 +84,7 @@ export default class MenuService {
     menuCollectionId: any,
     payload: any,
     middlewareMenu: any,
+    locationuuid: any,
   ) => {
     try {
       const categoryNames = payload.menuCategoriesList.map(
@@ -97,6 +100,7 @@ export default class MenuService {
         available: payload.available,
         'menu-uuid': payload.menuUuid,
         menuid: Number(payload.menuId),
+        locationuuid: locationuuid,
         menuheader: payload.menuHeader,
         menufooter: payload.menuFooter,
         categories: categories,
@@ -187,6 +191,7 @@ export default class MenuService {
     menuCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: any,
   ) => {
     try {
       const middlewareMenu = await prisma.menu.findUnique({
@@ -195,10 +200,22 @@ export default class MenuService {
       });
       if (!middlewareMenu && payload.available && payload.enabled) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);
-        return this.create(decryptedApiKey, menuCollectionId, payload, siteId);
+        return this.create(
+          decryptedApiKey,
+          menuCollectionId,
+          payload,
+          siteId,
+          locationuuid,
+        );
       } else {
         if (payload.available && payload.enabled) {
-          return this.update(apiKey, menuCollectionId, payload, middlewareMenu);
+          return this.update(
+            apiKey,
+            menuCollectionId,
+            payload,
+            middlewareMenu,
+            locationuuid,
+          );
         } else return this.delete(apiKey, menuCollectionId, payload, siteId);
       }
     } catch (error) {

@@ -16,6 +16,7 @@ export default class CategoryService {
     categoryCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: any,
   ) => {
     try {
       const productUuids = payload?.productsList?.map(
@@ -25,12 +26,13 @@ export default class CategoryService {
         productUuids,
         siteId,
       );
-      const modifiedDisclaimer=await removeHtmlTags( payload.disclaimer)
+      const modifiedDisclaimer = await removeHtmlTags(payload.disclaimer);
       const fieldData = {
         enabled: payload.enabled,
         name: payload.name,
         disclaimer: modifiedDisclaimer,
         categoryid: payload.categoryId,
+        locationuuid: locationuuid,
         productslist: products,
       };
       const createdCategory = await CollectionService.create(
@@ -67,6 +69,7 @@ export default class CategoryService {
     categoryCollectionId: any,
     payload: any,
     middlewareCategory: any,
+    locationuuid: any,
   ) => {
     try {
       const productUuids = payload.productsList.map(
@@ -76,12 +79,13 @@ export default class CategoryService {
         productUuids,
         middlewareCategory?.Site?.id,
       );
-      const modifiedDisclaimer=await removeHtmlTags( payload.disclaimer)
+      const modifiedDisclaimer = await removeHtmlTags(payload.disclaimer);
       const fieldData = {
         enabled: payload.enabled,
         name: payload.name,
         disclaimer: modifiedDisclaimer,
         categoryid: payload.categoryId,
+        locationuuid: locationuuid,
         productslist: products,
       };
       const updatedCategory = await CollectionService.update(
@@ -222,12 +226,6 @@ export default class CategoryService {
                   siteId: siteId,
                 },
               });
-              await prisma.menuCategory.deleteMany({
-                where: {
-                  gotabCategoryName: payload?.gotabCategoryName,
-                  siteId: siteId,
-                },
-              });
             } else {
               return removedCategory;
             }
@@ -251,10 +249,12 @@ export default class CategoryService {
     categoryCollectionId: any,
     payload: any,
     siteId: number,
+    locationuuid: any,
   ) => {
     try {
       const middlewareCategory = await prisma.category.findUnique({
         where: { gotabCategoryId: payload.categoryId, siteId: siteId },
+        include:{Site:true}
       });
       if (!middlewareCategory && payload.enabled && payload.archived === null) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);
@@ -263,6 +263,7 @@ export default class CategoryService {
           categoryCollectionId,
           payload,
           siteId,
+          locationuuid,
         );
       } else {
         if (payload.enabled && payload.archived === null) {
@@ -271,6 +272,7 @@ export default class CategoryService {
             categoryCollectionId,
             payload,
             middlewareCategory,
+            locationuuid,
           );
         } else
           return this.delete(apiKey, categoryCollectionId, payload, siteId);

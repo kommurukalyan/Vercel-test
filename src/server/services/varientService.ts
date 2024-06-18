@@ -43,10 +43,7 @@ export default class VarientService {
     } catch (error) {
       logger.log(error, undefined, 'error');
       return getErrorResponse(
-        'Error adding Varientsku' +
-          payload.sku +
-          ' for siteId' +
-          siteId,
+        'Error adding Varientsku' + payload.sku + ' for siteId' + siteId,
       );
     }
   };
@@ -181,9 +178,7 @@ export default class VarientService {
       }
     } catch (error) {
       logger.log(error, undefined, 'error');
-      return getErrorResponse(
-        'Error deleting Varientsku' + payload.sku,
-      );
+      return getErrorResponse('Error deleting Varientsku' + payload.sku);
     }
   };
 
@@ -196,6 +191,7 @@ export default class VarientService {
     try {
       const middlewareVariant = await prisma.variant.findUnique({
         where: { gotabVariantsku: payload.sku, siteId: siteId },
+        include: { Site: true },
       });
       if (!middlewareVariant && payload.archived === null) {
         const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);
@@ -218,10 +214,7 @@ export default class VarientService {
     } catch (error) {
       logger.log(error, undefined, 'error');
       return getErrorResponse(
-        'Error syncing Varientsku' +
-          payload.sku +
-          ' for siteId' +
-          siteId,
+        'Error syncing Varientsku' + payload.sku + ' for siteId' + siteId,
       );
     }
   };

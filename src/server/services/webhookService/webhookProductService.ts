@@ -143,6 +143,7 @@ export default class WebhookProductService {
                               ?.webflowProductCollectionId as string,
                             goTabProductResult.data.product,
                             middlewareProduct,
+                            middlewareProduct?.Site?.locationUuid,
                           );
                         if (!updatedWebflowProduct.error) {
                           return getSuccessResponse(
@@ -330,6 +331,7 @@ export default class WebhookProductService {
                               ?.webflowProductCollectionId as string,
                             goTabProductResult.data.product,
                             locationDetails?.Site?.id as number,
+                            locationDetails?.locationUuid,
                           );
                         if (!addedNewWebflowProduct.error) {
                           const categoryProducts =
@@ -407,6 +409,7 @@ export default class WebhookProductService {
                 locationDetails?.Site?.webflowProductCollectionId as string,
                 goTabProductResult.data.product,
                 locationDetails?.Site?.id as number,
+                locationDetails?.locationUuid,
               );
               if (!addedNewWebflowProduct.error) {
                 const categoryProducts = await ProductService.getByCategoryId(

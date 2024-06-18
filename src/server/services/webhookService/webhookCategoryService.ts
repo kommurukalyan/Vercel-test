@@ -47,6 +47,7 @@ export default class WebhookCategoryService {
                 middlewareCategory?.Site?.webflowCategoryCollectionId,
                 goTabCategoryResult.data.category,
                 middlewareCategory,
+                locationDetails?.locationUuid,
               );
               if (!updatedWebflowCategory.error) {
                 return getSuccessResponse('Category Updated Successfully');
@@ -111,9 +112,56 @@ export default class WebhookCategoryService {
               locationDetails?.Site?.webflowCategoryCollectionId,
               goTabCategoryResult.data.category,
               locationDetails?.Site?.id as number,
+              locationDetails?.locationUuid,
             );
             if (!addNewWebflowCategory?.error) {
-              return getSuccessResponse('New Category added Successfully');
+              const menuCategories = await prisma.menuCategory.findMany({
+                where: {
+                  gotabCategoryName: goTabCategoryResult.data.category.name,
+                },
+              });
+              if (menuCategories.length > 0) {
+                const menuIds = menuCategories.map(
+                  (ele: any) => ele.gotabMenuId,
+                );
+                let promise = new Promise(async (resolve: any, reject: any) => {
+                  if (menuIds.length === 0) {
+                    resolve();
+                  }
+                  await prisma.menuCategory.updateMany({
+                    where: {
+                      gotabCategoryName: goTabCategoryResult.data.category.name,
+                      gotabMenuId: {
+                        in: menuIds,
+                      },
+                    },
+                    data: {
+                      isDeleted: false,
+                    },
+                  });
+                  menuIds.forEach(async (ele: any, index: any, array: any) => {
+                    const addedUpdatedCategoriesOfMenu =
+                      await CategoryService.addCategoryToWebflowMenu(
+                        locationDetails?.Site?.apiKey as string,
+                        ele,
+                        locationDetails?.Site?.id,
+                      );
+                    if (!addedUpdatedCategoriesOfMenu.error) {
+                      if (index === array.length - 1) {
+                        resolve();
+                      }
+                    } else {
+                      reject(addedUpdatedCategoriesOfMenu);
+                      return false;
+                    }
+                  });
+                });
+                promise.then(async () => {
+                  return getSuccessResponse('New Category added Successfully');
+                });
+              } else {
+                return getSuccessResponse('New Category added Successfully');
+              }
             } else {
               const errorMsg = `Error Adding a new category during CATEGORY_UPDATED webhook, ${addNewWebflowCategory.errors.response.data.message}`;
               await ErrorLog.logErrorToDb(

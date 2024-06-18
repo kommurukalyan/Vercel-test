@@ -48,6 +48,7 @@ export default class WebhookMenuService {
                 middlewareMenu?.Site?.webflowMenuCollectionId,
                 goTabMenuResult.data.menu,
                 middlewareMenu,
+                middlewareMenu?.Site?.locationUuid,
               );
               if (!updatedWebflowMenu.error) {
                 return getSuccessResponse('Menu Updated Successfully');
@@ -111,6 +112,7 @@ export default class WebhookMenuService {
               locationDetails?.Site?.webflowMenuCollectionId,
               goTabMenuResult.data.menu,
               locationDetails?.Site?.id as number,
+              locationDetails?.locationUuid as string,
             );
 
             if (!addNewWebflowMenu.error) {

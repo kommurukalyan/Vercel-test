@@ -5,6 +5,7 @@ import {
 import CollectionService from './collectionService';
 import prisma from '@/lib/prisma';
 import logger from '../serverUtils/logger';
+import EncryptionClient from '../serverUtils/EncryptionClient';
 
 export default class LocationService {
   public static create = async (
@@ -103,8 +104,9 @@ export default class LocationService {
         },
       });
       if (!middlewareLocation) {
+        const decryptedApiKey = EncryptionClient.decryptData(apiKey as string);
         return this.create(
-          apiKey,
+          decryptedApiKey,
           collectionId,
           payload,
           webflowAddressId,
