@@ -41,20 +41,25 @@ export const importData = async (
   try {
     const goTabLocationData = await getLocation(payload.locationUuid);
     if (goTabLocationData.error) {
-      throw new Error('Error fetching location data');
+      const errorMsg = `Error fetching location data: ${goTabLocationData.error}`;
+      await logError(errorMsg, siteId, payload);
+      return getErrorResponse(errorMsg);
     }
 
+    // Adding Address details to webflow
     const addAddressToWebflow = await AddressService.create(
       payload.apiKey,
       collections.addressCollectionId,
       goTabLocationData.data.address,
       siteId,
     );
-
     if (addAddressToWebflow.error) {
-      throw new Error('Error inserting address');
+      const errorMsg = `Error adding address to Webflow: ${addAddressToWebflow.error}`;
+      await logError(errorMsg, siteId, payload);
+      return getErrorResponse(errorMsg);
     }
 
+    // Adding Location details to webflow
     const addLocationToWebflow = await LocationService.create(
       payload.apiKey,
       collections.locationCollectionId,
@@ -62,99 +67,199 @@ export const importData = async (
       addAddressToWebflow.data.data.id,
       siteId,
     );
-
     if (addLocationToWebflow.error) {
-      throw new Error('Error inserting location');
+      const errorMsg = `Error adding location to Webflow: ${addLocationToWebflow.error}`;
+      await logError(errorMsg, siteId, payload);
+      return getErrorResponse(errorMsg);
     }
 
-    const [
-      filteredOptionsArray,
-      filteredVariantsArray,
-      filteredModifiersArray,
-      filteredProductsArray,
-      filteredCategoriesArray,
-      filteredMenusArray,
-    ] = await Promise.all([
-      getOptions(goTabLocationData.data.locationId),
-      getVariants(goTabLocationData.data.locationId),
-      getModifiers(goTabLocationData.data.locationId),
-      getProducts(goTabLocationData.data.locationId),
-      getCategories(goTabLocationData.data.locationId),
-      getMenus(goTabLocationData.data.locationId),
-    ]);
+    // Fetching GoTab data
+    const filteredOptionsArray = await getOptions(
+      goTabLocationData.data.locationId,
+    );
+    const filteredVariantsArray = await getVariants(
+      goTabLocationData.data.locationId,
+    );
+    const filteredModifiersArray = await getModifiers(
+      goTabLocationData.data.locationId,
+    );
+    const filteredProductsArray = await getProducts(
+      goTabLocationData.data.locationId,
+    );
+    const filteredCategoriesArray = await getCategories(
+      goTabLocationData.data.locationId,
+    );
+    const filteredMenusArray = await getMenus(
+      goTabLocationData.data.locationId,
+    );
 
     if (
+      filteredOptionsArray.error ||
+      filteredVariantsArray.error ||
+      filteredModifiersArray.error ||
       filteredProductsArray.error ||
       filteredCategoriesArray.error ||
-      filteredMenusArray.error ||
-      filteredModifiersArray.error ||
-      filteredOptionsArray.error
+      filteredMenusArray.error
     ) {
-      throw new Error('Error fetching data from GoTab');
+      const errorMsg = 'Error fetching GoTab data';
+      await logError(errorMsg, siteId, payload);
+      return getErrorResponse(errorMsg);
     }
 
-    const addDataToWebflow = async (
-      dataArray: any,
-      service: any,
-      collectionId: any,
-    ) => {
-      const promises = dataArray.map(
-        (ele: any, index: any) =>
-          new Promise((resolve, reject) => {
-            setTimeout(async () => {
-              try {
-                const result = await service.create(
-                  payload.apiKey,
-                  collectionId,
-                  ele,
-                  siteId,
-                );
-                if (!result.error) {
-                  resolve(result);
-                } else {
-                  reject(result);
-                }
-              } catch (error) {
-                reject(error);
-              }
-            }, index * 1000);
+    // Create promises for each data type
+    const promises = [];
+
+    // Options
+    if (filteredOptionsArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredOptionsArray.data.map(async (option: any) => {
+            const result = await OptionService.create(
+              payload.apiKey,
+              collections.optionCollectionId,
+              option,
+              siteId,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding option to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
           }),
+        ),
       );
+    }
 
-      return Promise.all(promises);
-    };
+    // Modifiers
+    if (filteredModifiersArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredModifiersArray.data.map(async (modifier: any) => {
+            const result = await ModifierService.create(
+              payload.apiKey,
+              collections.modifierCollectionId,
+              modifier,
+              siteId,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding modifier to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
+          }),
+        ),
+      );
+    }
 
-    await addDataToWebflow(
-      filteredOptionsArray.data,
-      OptionService,
-      collections.optionCollectionId,
-    );
-    await addDataToWebflow(
-      filteredModifiersArray.data,
-      ModifierService,
-      collections.modifierCollectionId,
-    );
-    await addDataToWebflow(
-      filteredVariantsArray.data,
-      varientService,
-      collections.variantCollectionId,
-    );
-    await addDataToWebflow(
-      filteredProductsArray.data,
-      ProductService,
-      collections.productCollectionId,
-    );
-    await addDataToWebflow(
-      filteredCategoriesArray.data,
-      CategoryService,
-      collections.categoryCollectionId,
-    );
-    await addDataToWebflow(
-      filteredMenusArray.data,
-      MenuService,
-      collections.menuCollectionId,
-    );
+    // Variants
+    if (filteredVariantsArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredVariantsArray.data.map(async (variant: any) => {
+            const result = await VarientService.create(
+              payload.apiKey,
+              collections.variantCollectionId,
+              variant,
+              siteId,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding variant to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
+          }),
+        ),
+      );
+    }
 
+    // Products
+    if (filteredProductsArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredProductsArray.data.map(async (product: any) => {
+            const result = await ProductService.create(
+              payload.apiKey,
+              collections.productCollectionId,
+              product,
+              siteId,
+              payload.locationUuid,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding product to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
+          }),
+        ),
+      );
+    }
+
+    // Categories
+    if (filteredCategoriesArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredCategoriesArray.data.map(async (category: any) => {
+            const result = await CategoryService.create(
+              payload.apiKey,
+              collections.categoryCollectionId,
+              category,
+              siteId,
+              payload.locationUuid,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding category to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
+          }),
+        ),
+      );
+    }
+
+    // Menus
+    if (filteredMenusArray.data.length > 0) {
+      promises.push(
+        Promise.all(
+          filteredMenusArray.data.map(async (menu: any) => {
+            const result = await MenuService.create(
+              payload.apiKey,
+              collections.menuCollectionId,
+              menu,
+              siteId,
+              payload.locationUuid,
+            );
+            if (result.error) {
+              await logError(
+                `Error adding menu to Webflow: ${result.error}`,
+                siteId,
+                payload,
+              );
+            }
+            return result;
+          }),
+        ),
+      );
+    }
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
+    // Send success email
     await AwsEmailClient.sendMailUsingMailer({
       to: 'dev@ionixsystems.com',
       subject: 'Import Success',
@@ -163,13 +268,18 @@ export const importData = async (
 
     return getSuccessResponse('Data imported successfully');
   } catch (error) {
-    console.error('importData-error', error);
-    await ErrorLog.logErrorToDb(
-      error.code || '500',
-      error.message || 'Unknown error',
-      siteId,
-      payload,
-    );
-    return getErrorResponse(error.message || 'Error during import');
+    await logError(`Error in importData: ${error}`, siteId, payload);
+    return getErrorResponse('Error importing data');
   }
+};
+
+// Helper function to log errors
+const logError = async (errorMsg: string, siteId: any, payload: any) => {
+  console.error(errorMsg);
+  await ErrorLog.logErrorToDb(
+    '500', // Adjust error code as needed
+    errorMsg,
+    siteId,
+    payload,
+  );
 };
