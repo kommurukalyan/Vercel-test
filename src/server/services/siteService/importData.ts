@@ -39,6 +39,8 @@ export const importData = async (
   collections: any,
 ) => {
   try {
+    console.log("payload",payload)
+    console.log("entered import data")
     const goTabLocationData = await getLocation(payload.locationUuid);
     if (goTabLocationData.error) {
       const errorMsg = `Error fetching location data: ${goTabLocationData.error}`;

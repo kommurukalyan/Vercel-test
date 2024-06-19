@@ -204,6 +204,7 @@ export default class SiteService {
     siteId: any,
     collections: any,
   ) => {
+    console.log("entered startimport process")
     // Import data asynchronously
     importData(payload, siteId, collections)
       .then(async () => {
