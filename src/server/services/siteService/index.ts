@@ -175,7 +175,7 @@ export default class SiteService {
               variantCollectionId: variantCollectionId,
             };
             //fetching gotab location data
-           importData(payload, siteResult.id, collections);
+            this.startImportProcess(payload, siteResult.id, collections);
             return getSuccessResponse(
               'Site Added,Importing Process Started,we will inform through email once the process is completed',
               siteResult,
@@ -198,6 +198,33 @@ export default class SiteService {
       return getErrorResponse();
     }
   };
+
+  public static startImportProcess = async (
+    payload: any,
+    siteId: any,
+    collections: any,
+  ) => {
+    // Import data asynchronously
+    importData(payload, siteId, collections)
+      .then(async () => {
+        await AwsEmailClient.sendMailUsingMailer({
+          to: 'dev@ionixsystems.com',
+          subject: 'Import Success',
+          html: `<div><h3>Success</h3><p>Data Imported Successfully</p></div>`,
+        });
+      })
+      .catch(async (error) => {
+        console.error('importData-error', error);
+        const errorMsg = error.message || 'Error during import';
+        await ErrorLog.logErrorToDb(
+          error.code || '500',
+          errorMsg,
+          siteId,
+          payload,
+        );
+      });
+  };
+
   public static deleteSite = async (id: number, userId: number) => {
     try {
       const user = await UserService.getUserById(userId);
