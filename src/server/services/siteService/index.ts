@@ -175,7 +175,7 @@ export default class SiteService {
               variantCollectionId: variantCollectionId,
             };
             //fetching gotab location data
-            importData(payload, siteResult.id, collections);
+           await importData(payload, siteResult.id, collections);
             return getSuccessResponse(
               'Site Added,Importing Process Started,we will inform through email once the process is completed',
               siteResult,
